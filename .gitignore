@@ -1,0 +1,8 @@
+$RECYCLE.BIN/
+Bin
+Build
+*.suo
+*.user
+bin/
+obj/
+addins/

@@ -97,7 +97,7 @@
     <Content Include="Views\Web.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\CardWall.Core\CardWall.Core.fsproj">
+    <ProjectReference Include="..\Source\CardWall.Core.fsproj">
       <Project>{DEC7E915-245A-4F62-8C70-A4582ADCD25C}</Project>
       <Name>CardWall.Core</Name>
     </ProjectReference>
