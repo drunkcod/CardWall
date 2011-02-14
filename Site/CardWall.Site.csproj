@@ -70,6 +70,7 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Models\CardView.cs" />
+    <Compile Include="Models\CardViewFactory.cs" />
     <Compile Include="Models\IterationView.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -42,22 +42,8 @@ namespace CardWall.Controllers
             var currentIteration = tracker.CurrentIteration(id);
             var membersLookup = tracker.ProjectMembers(id).ContinueWith(task => CreatePersonLookup(task.Result));
             return Task.Factory.ContinueWhenAll(new Task[]{ currentIteration, membersLookup }, _ => {
-                var result = new List<CardView>();
-                var stories = currentIteration.Result;
-                var members = membersLookup.Result;
-                foreach(var item in stories) {
-                    var card = new CardView {
-                        Type = item.Type,
-                        CurrentState = item.CurrentState,
-                        Title = item.Name,
-                        Owner = GetOwner(members, item),
-                        AvatarUrl = GetAvatarUrl(members, item),
-                        Url = item.Url,
-                        Labels = item.Labels
-                    };
-                    result.Add(card);
-                }
-                return result;
+                var cards = new CardViewFactory(membersLookup.Result);
+                return new List<CardView>(currentIteration.Result.Select(cards.MakeCardForStory));
             });
         }
 
@@ -67,18 +53,5 @@ namespace CardWall.Controllers
                 result.Add(item.Name, item);
             return result;
         }
-
-        string GetAvatarUrl(Dictionary<string, PivotalProjectMember> members, PivotalStory story) {
-            if(string.IsNullOrEmpty(story.OwnedBy))
-                return "";
-            return Gravatar.FromEmail(members[story.OwnedBy].EmailAddress);
-        }
-
-        string GetOwner(Dictionary<string, PivotalProjectMember> members, PivotalStory story) {
-            if(string.IsNullOrEmpty(story.OwnedBy))
-                return "<none>";
-            return story.OwnedBy;
-        }
-
     }
 }
