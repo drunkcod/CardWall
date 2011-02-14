@@ -52,7 +52,8 @@ namespace CardWall.Controllers
                         Title = item.Name,
                         Owner = GetOwner(members, item),
                         AvatarUrl = GetAvatarUrl(members, item),
-                        Url = item.Url
+                        Url = item.Url,
+                        Labels = item.Labels
                     };
                     result.Add(card);
                 }
