@@ -13,12 +13,18 @@ type PivotalProjectMember = {
 }
 
 type PivotalStory = {
+    ProjectId : int
     Type : string
     CurrentState : string
     Url : string
     Name : string
     OwnedBy : string
     Labels : string[]
+}
+
+type PivotalProject = {
+    Id : int
+    Name : string
 }
 
 type PivotalTracker(trackerToken) =
@@ -38,6 +44,14 @@ type PivotalTracker(trackerToken) =
 
         Task.Factory.FromAsync((fun a b -> request.BeginGetResponse(a, b)), toXml, null)
 
+    member this.Projects() =
+        let request = this.XmlRequest("/projects")
+        request.ContinueWith(fun (task : Task<XPathNavigator>) ->
+            task.Result
+            |> XPath.map "//project" (fun x ->
+                let nodeValue xpath = x.NodeValueOrDefault(xpath, "")
+                { Id = int(nodeValue "id"); Name = nodeValue "name" }))
+
     member this.ProjectMembers (project:int) =
         let request = this.XmlRequest(String.Format("/projects/{0}/memberships", project))
         request.ContinueWith(fun (task : Task<XPathNavigator>) ->
@@ -52,4 +66,4 @@ type PivotalTracker(trackerToken) =
             task.Result
             |> XPath.map "//story" (fun x ->
                 let nodeValue xpath = x.NodeValueOrDefault(xpath, "")
-                { Type = nodeValue "story_type"; CurrentState = nodeValue "current_state"; Url = nodeValue "url"; Name = nodeValue "name"; OwnedBy = nodeValue "owned_by"; Labels = (nodeValue "labels").Split([|','|]) }))
+                { ProjectId = int(nodeValue "project_id"); Type = nodeValue "story_type"; CurrentState = nodeValue "current_state"; Url = nodeValue "url"; Name = nodeValue "name"; OwnedBy = nodeValue "owned_by"; Labels = (nodeValue "labels").Split([|','|]) }))

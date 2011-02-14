@@ -69,8 +69,10 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Models\CardBadge.cs" />
     <Compile Include="Models\CardView.cs" />
     <Compile Include="Models\CardViewFactory.cs" />
+    <Compile Include="Models\IKeyValueLookup.cs" />
     <Compile Include="Models\IterationView.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
