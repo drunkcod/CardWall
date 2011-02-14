@@ -15,6 +15,7 @@ type PivotalProjectMember = {
 type PivotalStory = {
     Type : string
     CurrentState : string
+    Url : string
     Name : string
     OwnedBy : string
 }
@@ -50,4 +51,4 @@ type PivotalTracker(trackerToken) =
             task.Result
             |> XPath.map "//story" (fun x ->
                 let nodeValue xpath = x.NodeValueOrDefault(xpath, "")
-                { Type = nodeValue "story_type"; CurrentState = nodeValue "current_state"; Name = nodeValue "name"; OwnedBy = nodeValue "owned_by" }))
+                { Type = nodeValue "story_type"; CurrentState = nodeValue "current_state"; Url = nodeValue "url"; Name = nodeValue "name"; OwnedBy = nodeValue "owned_by" }))

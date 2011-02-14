@@ -7,6 +7,7 @@
         public string Type;
         public string Owner;
         public string AvatarUrl;
+        public string Url;
         public string CurrentState;
     }
 }
