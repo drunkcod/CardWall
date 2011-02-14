@@ -55,7 +55,7 @@ namespace CardWall.Controllers
                 { "team south", new CardBadge { Name = "Team South", Url = Url.Content("~/Content/FamFamFam/flag_red.png") } },
                 { "sg 3 pricing", new CardBadge { Name = "Pricing", Url = Url.Content("~/Content/FamFamFam/money.png") } },
                 { "sg 1 usability", new CardBadge { Name = "Usability", Url = Url.Content("~/Content/FamFamFam/user_female.png") } },
-                { "bug", new CardBadge { Name = "Bug", Url = Url.Content("~/Content/PivotalTracker/bug.png") } },
+                { "type:bug", new CardBadge { Name = "Bug", Url = Url.Content("~/Content/PivotalTracker/bug.png") } },
                 { "type:chore", new CardBadge { Name = "Chore", Url = Url.Content("~/Content/PivotalTracker/chore.png") } },
                 { "type:feature", new CardBadge { Name = "Feature", Url = Url.Content("~/Content/PivotalTracker/feature.png") } },
                 { "type:release", new CardBadge { Name = "Release", Url = Url.Content("~/Content/PivotalTracker/release.png") } }                
