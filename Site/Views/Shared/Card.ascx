@@ -8,5 +8,5 @@
     <%if(!string.IsNullOrEmpty(Model.AvatarUrl)) { %>
     <img class='card-avatar' src="<%=Model.AvatarUrl %>" />
     <%} %>
-    <img class='card-type' src='/Content/PivotalTracker/<%=Model.Type%>.png'/>
+    <img class='card-type' src="<%=Url.Content("~/Content/PivotalTracker/" + Model.Type + ".png")%>"/>
 </div>

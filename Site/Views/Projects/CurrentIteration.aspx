@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" >
 <head runat="server">
     <title>Iteration Overview</title>
-    <link rel="Stylesheet" type="text/css" href="/Content/Style.css" />
+    <link rel="stylesheet" type="text/css" href="<%=Url.Content("~/Content/Style.css")%>" />
 </head>
 <body>
   <table id="content" cellpadding=0 cellspacing=0 border=0>
