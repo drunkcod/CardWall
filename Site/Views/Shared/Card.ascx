@@ -7,9 +7,9 @@
         <span class='card-labels'><%foreach(var item in Model.Labels){ %><%=item%>&nbsp; <%} %></span>
     </div>
     <%if(!string.IsNullOrEmpty(Model.AvatarUrl)) { %>
-    <img class='card-avatar' src="<%=Model.AvatarUrl %>" />
+    <img class='card-avatar' src="<%=Url.Content(Model.AvatarUrl) %>" />
     <%} %>
     <ul class="card-badges"><%foreach(var item in Model.Badges) { %>
-        <li><img title="<%=item.Name%>" src="<%=item.Url %>" /></li>
+        <li><img title="<%=item.Name%>" src="<%=Url.Content(item.Url)%>" /></li>
     <%}%></ul>
 </div>

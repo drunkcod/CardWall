@@ -11,7 +11,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>CardWall</RootNamespace>
-    <AssemblyName>CardWall</AssemblyName>
+    <AssemblyName>CardWall.Site</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <MvcBuildViews>false</MvcBuildViews>
   </PropertyGroup>
@@ -65,6 +65,8 @@
     <Reference Include="System.EnterpriseServices" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BadgeConfiguration.cs" />
+    <Compile Include="Controllers\BadgesController.cs" />
     <Compile Include="Controllers\ProjectsController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -72,7 +74,8 @@
     <Compile Include="Models\CardBadge.cs" />
     <Compile Include="Models\CardView.cs" />
     <Compile Include="Models\CardViewFactory.cs" />
-    <Compile Include="Models\IKeyValueLookup.cs" />
+    <Compile Include="Models\DefaultBadgeBuilder.cs" />
+    <Compile Include="Models\IBuilder.cs" />
     <Compile Include="Models\IterationView.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -82,6 +85,7 @@
     <Content Include="Content\PivotalTracker\feature.png" />
     <Content Include="Content\Style.css" />
     <Content Include="Global.asax" />
+    <Content Include="Views\Badges\Index.aspx" />
     <Content Include="Views\Projects\CurrentIteration.aspx" />
     <Content Include="Views\Shared\Card.ascx" />
     <Content Include="Web.config" />

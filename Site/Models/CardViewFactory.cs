@@ -7,9 +7,9 @@ namespace CardWall.Models
     {
         readonly IDictionary<int, PivotalProject> projects;
         readonly IDictionary<string, PivotalProjectMember> members;
-        readonly IKeyValueLookup<string, CardBadge> badges;
+        readonly IBuilder<string, CardBadge> badges;
 
-        public CardViewFactory(IDictionary<int, PivotalProject> projects, IDictionary<string, PivotalProjectMember> members, IKeyValueLookup<string, CardBadge> badges) {
+        public CardViewFactory(IDictionary<int, PivotalProject> projects, IDictionary<string, PivotalProjectMember> members, IBuilder<string, CardBadge> badges) {
             this.projects = projects;
             this.members = members;
             this.badges = badges;
@@ -41,7 +41,7 @@ namespace CardWall.Models
         }
 
         bool TryGetBadge(string label, out CardBadge badge) {
-            return badges.TryGetValue(label, out badge);
+            return badges.TryBuild(label, out badge);
         }
 
         string GetProjectName(PivotalStory story) {

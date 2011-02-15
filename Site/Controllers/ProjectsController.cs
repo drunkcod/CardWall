@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Mvc;
 using CardWall.Models;
+using System.Configuration;
 
 namespace CardWall.Controllers
 {
@@ -42,25 +43,16 @@ namespace CardWall.Controllers
             var currentIteration = tracker.CurrentIteration(id);
             var projectsLookup = tracker.Projects().ContinueWith(task => CreateLookup(task.Result));
             var membersLookup = tracker.ProjectMembers(id).ContinueWith(task => CreateLookup(task.Result));
-            return Task.Factory.ContinueWhenAll(new Task[]{ currentIteration, membersLookup }, _ => {
-                var cards = new CardViewFactory(projectsLookup.Result, membersLookup.Result, CreateBadgeLookup());
+            return Task.Factory.ContinueWhenAll(new Task[]{ currentIteration, projectsLookup, membersLookup }, _ => {
+                var cards = new CardViewFactory(projectsLookup.Result, membersLookup.Result, CreateBadgeBuilder());
                 return new List<CardView>(currentIteration.Result.Select(cards.MakeCardForStory));
             });
         }
 
-        IKeyValueLookup<string, CardBadge> CreateBadgeLookup() {
-            var badges = new Dictionary<string, CardBadge>(StringComparer.InvariantCultureIgnoreCase)
-            {
-                { "team north", new CardBadge { Name = "Team North", Url = Url.Content("~/Content/FamFamFam/flag_blue.png") } },
-                { "team south", new CardBadge { Name = "Team South", Url = Url.Content("~/Content/FamFamFam/flag_red.png") } },
-                { "sg 3 pricing", new CardBadge { Name = "Pricing", Url = Url.Content("~/Content/FamFamFam/money.png") } },
-                { "sg 1 usability", new CardBadge { Name = "Usability", Url = Url.Content("~/Content/FamFamFam/user_female.png") } },
-                { "type:bug", new CardBadge { Name = "Bug", Url = Url.Content("~/Content/PivotalTracker/bug.png") } },
-                { "type:chore", new CardBadge { Name = "Chore", Url = Url.Content("~/Content/PivotalTracker/chore.png") } },
-                { "type:feature", new CardBadge { Name = "Feature", Url = Url.Content("~/Content/PivotalTracker/feature.png") } },
-                { "type:release", new CardBadge { Name = "Release", Url = Url.Content("~/Content/PivotalTracker/release.png") } }                
-            };
-            return new DictionaryKeyValueLookup<string, CardBadge>(badges);        
+        IBuilder<string, CardBadge> CreateBadgeBuilder() {
+            var badges = new DefaultBadgeBuilder();
+            badges.LoadConfigurationSection("Badges");
+            return badges;
         }
 
         Dictionary<string, PivotalProjectMember> CreateLookup(IEnumerable<PivotalProjectMember> members) {
