@@ -8,6 +8,7 @@ namespace CardWall.Models
     {
         readonly Dictionary<string, CardBadge> badges = new Dictionary<string, CardBadge>(StringComparer.InvariantCultureIgnoreCase)
         {
+            { "type:bug", new CardBadge { Name = "Bug", Url = "~/Content/PivotalTracker/bug.png" } },                 
             { "type:chore", new CardBadge { Name = "Chore", Url = "~/Content/PivotalTracker/chore.png" } },
             { "type:feature", new CardBadge { Name = "Feature", Url = "~/Content/PivotalTracker/feature.png" } },
             { "type:release", new CardBadge { Name = "Release", Url = "~/Content/PivotalTracker/release.png" } }                
