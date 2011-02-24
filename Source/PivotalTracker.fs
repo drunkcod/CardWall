@@ -15,6 +15,7 @@ type PivotalProjectMember = {
 type PivotalStory = {
     ProjectId : int
     Type : string
+    Estimate : Nullable<int>
     CurrentState : string
     Url : string
     Name : string
@@ -62,8 +63,11 @@ type PivotalTracker(trackerToken) =
 
     member this.CurrentIteration (project:int) =
         let request = this.XmlRequest(String.Format("/projects/{0}/iterations/current", project))
+        let intOrNull x = 
+            if String.IsNullOrEmpty(x) then Nullable()
+            else Nullable(int(x))
         request.ContinueWith(fun (task : Task<XPathNavigator>) -> 
             task.Result
             |> XPath.map "//story" (fun x ->
                 let nodeValue xpath = x.NodeValueOrDefault(xpath, "")
-                { ProjectId = int(nodeValue "project_id"); Type = nodeValue "story_type"; CurrentState = nodeValue "current_state"; Url = nodeValue "url"; Name = nodeValue "name"; OwnedBy = nodeValue "owned_by"; Labels = (nodeValue "labels").Split([|','|]) }))
+                { ProjectId = int(nodeValue "project_id"); Type = nodeValue "story_type"; Estimate = intOrNull(nodeValue "estimate"); CurrentState = nodeValue "current_state"; Url = nodeValue "url"; Name = nodeValue "name"; OwnedBy = nodeValue "owned_by"; Labels = (nodeValue "labels").Split([|','|]) }))

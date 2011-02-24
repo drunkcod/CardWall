@@ -20,6 +20,18 @@
     top: 0px;
     margin: 10px;
 }
+
+.size1 {
+    -o-transform: scale(0.8);
+}
+
+.size2 {
+    -o-transform: scale(0.9);
+}
+
+.size4 {
+    -o-transform: scale(1);
+}
    
 .card-footer {
     font-size: smaller;

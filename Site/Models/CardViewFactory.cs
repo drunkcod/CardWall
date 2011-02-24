@@ -19,6 +19,7 @@ namespace CardWall.Models
             var card = new CardView {
                 Type = story.Type,
                 CurrentState = story.CurrentState,
+                Size = story.Estimate,
                 Title = story.Name,
                 Owner = GetOwner(story),
                 AvatarUrl = GetAvatarUrl(story),

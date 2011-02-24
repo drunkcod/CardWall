@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System;
 
 namespace CardWall.Models
 {
@@ -17,6 +18,8 @@ namespace CardWall.Models
         public IEnumerable<string> Labels { get { return labels; } }
         public IEnumerable<CardBadge> Badges { get { return badges; } }
         public string ProjectName;
+        public int? Size;
+        public DateTime Started;
 
         public void AddBadge(CardBadge item) { badges.Add(item); }
         public void AddLabel(string label){ labels.Add(label); }
