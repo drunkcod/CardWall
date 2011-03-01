@@ -63,28 +63,23 @@ type PivotalStory() =
     interface IXmlSerializable with
         member this.GetSchema() = null
         member this.ReadXml reader = 
-            reader.ReadStartElement()
-            let rec loop () =
-                if reader.NodeType = XmlNodeType.Element then
-                    match reader.Name with
-                    | "id" -> this.id <- reader.ReadElementContentAsInt()
-                    | "project_id" -> this.projectId <- reader.ReadElementContentAsInt()
-                    | "story_type" -> storyType <- PivotalStory.ParseStoryType(reader.ReadElementContentAsString())
-                    | "estimate" -> estimate <- Nullable(reader.ReadElementContentAsInt())
-                    | "current_state" -> state <- PivotalStory.ParseStoryState(reader.ReadElementContentAsString())
-                    | "url" -> url <- reader.ReadElementContentAsString()
-                    | "name" -> name <- reader.ReadElementContentAsString()
-                    | "owned_by" -> ownedBy <- reader.ReadElementContentAsString()
-                    | "labels" -> labels <- reader.ReadElementContentAsString().Split([|','|])
-                    | "tasks" ->
-                        while reader.Read() && not (reader.Name = "tasks" && reader.NodeType = XmlNodeType.EndElement) do
-                            if reader.Name = "task" then
-                                let task = PivotalTask()
-                                (task :> IXmlSerializable).ReadXml(reader)
-                                tasks.Add(task)
-                    | _ -> reader.Skip()
-                if reader.NodeType <> XmlNodeType.EndElement && reader.Read() then
-                    loop ()
-            loop ()
+            reader 
+            |> PivotalParse.readXmlElements (fun reader ->
+                match reader.Name with
+                | "id" -> this.id <- reader.ReadElementContentAsInt()
+                | "project_id" -> this.projectId <- reader.ReadElementContentAsInt()
+                | "story_type" -> storyType <- PivotalStory.ParseStoryType(reader.ReadElementContentAsString())
+                | "estimate" -> estimate <- Nullable(reader.ReadElementContentAsInt())
+                | "current_state" -> state <- PivotalStory.ParseStoryState(reader.ReadElementContentAsString())
+                | "url" -> url <- reader.ReadElementContentAsString()
+                | "name" -> name <- reader.ReadElementContentAsString()
+                | "owned_by" -> ownedBy <- reader.ReadElementContentAsString()
+                | "labels" -> labels <- reader.ReadElementContentAsString().Split([|','|])
+                | "tasks" ->
+                    while reader.Read() && not (reader.Name = "tasks" && reader.NodeType = XmlNodeType.EndElement) do
+                        if reader.Name = "task" then
+                            let task = PivotalTask()
+                            (task :> IXmlSerializable).ReadXml(reader)
+                            tasks.Add(task)
+                | _ -> reader.Skip())
         member this.WriteXml writer = ()
-

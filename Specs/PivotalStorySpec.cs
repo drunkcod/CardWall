@@ -67,6 +67,8 @@ namespace CardWall
                 Verify.That(() => stories.Count == 2);
                 Verify.That(() => stories[0].Id == 1);
                 Verify.That(() => stories[1].Id == 2);
+                Verify.That(() => stories[0].ProjectId == 12345);
+                Verify.That(() => stories[1].ProjectId == 12345);
             }
         }
     }

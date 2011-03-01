@@ -3,6 +3,7 @@
 open System
 open System.Globalization
 open System.Text.RegularExpressions
+open System.Xml
 
 module PivotalParse = 
     let dateTime =
@@ -16,3 +17,14 @@ module PivotalParse =
         fun s ->
             let timeWithOffset = timex.Replace(s, timeOffset)
             DateTime.ParseExact(timeWithOffset, "yyyy/MM/dd HH:mm:ss K", CultureInfo.InvariantCulture)
+    let readXmlElements elementHandler (reader:XmlReader) = 
+            reader.ReadStartElement()
+            let rec loop () =
+                match reader.NodeType with
+                | XmlNodeType.EndElement -> ()
+                | XmlNodeType.Element -> 
+                    elementHandler reader
+                    loop()
+                | _ -> next()
+            and next () = reader.Skip(); loop()
+            loop()

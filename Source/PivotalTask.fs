@@ -19,19 +19,15 @@ type PivotalTask() =
 
     interface IXmlSerializable with
         member this.GetSchema() = null
-        member this.ReadXml reader =
-            reader.ReadStartElement()
-            let rec loop () = 
-                if reader.NodeType = XmlNodeType.Element then
-                    match reader.Name with
-                    | "id" -> this.id <- reader.ReadElementContentAsInt()
-                    | "description" -> this.description <- reader.ReadElementContentAsString()
-                    | "position" -> this.position <- reader.ReadElementContentAsInt()
-                    | "complete" -> this.complete <- reader.ReadElementContentAsBoolean()
-                    | "created_at" -> this.createdAt <- reader.ReadElementContentAsString() |> PivotalParse.dateTime
-                    | _ -> reader.Skip()
-                if reader.NodeType <> XmlNodeType.EndElement && reader.Read() then
-                    loop()
-            loop ()
+        member this.ReadXml reader = 
+            reader 
+            |> PivotalParse.readXmlElements (fun reader ->
+                match reader.Name with
+                | "id" -> this.id <- reader.ReadElementContentAsInt()
+                | "description" -> this.description <- reader.ReadElementContentAsString()
+                | "position" -> this.position <- reader.ReadElementContentAsInt()
+                | "complete" -> this.complete <- reader.ReadElementContentAsBoolean()
+                | "created_at" -> this.createdAt <- reader.ReadElementContentAsString() |> PivotalParse.dateTime
+                | _ -> reader.Skip())
 
         member this.WriteXml writer = ()
