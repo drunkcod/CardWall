@@ -12,13 +12,21 @@
 .card {
     border: 1px solid black;
     border-radius: 15px;
+    -moz-border-radius: 15px;
     box-shadow: 10px 10px 10px rgba(50%, 50%, 50%, 0.3);
+    -moz-box-shadow: 10px 10px 10px rgba(50%, 50%, 50%, 0.3);
+    margin: 0;
     padding: 10px;
     padding-bottom: 60px;
     width: 240px;
     position: relative;
     top: 0px;
     margin: 10px;
+    z-index: 0;
+}
+
+.card h1 
+{
     overflow: hidden;
 }
 
@@ -61,8 +69,29 @@
 .card-badges li {
   display: inline;
 }
+
 .card-tasks {
     font-size: smaller;
+    position: relative;
+    top: 100px;
+    left: 40px;
+    z-index: 1;
+}
+
+.task-list {
+    border: 1px solid black;
+    border-radius: 15px;
+    -moz-border-radius: 15px;
+    box-shadow: 10px 10px 10px rgba(50%, 50%, 50%, 0.3);
+    -moz-box-shadow: 10px 10px 10px rgba(50%, 50%, 50%, 0.3);
+    margin: 0;
+    padding: 10px;
+    position: absolute;
+    background-color: white;
+}
+
+.card-tasks:hover {
+    font-weight: bolder;
 }
 
 .card-tasks img {
@@ -78,6 +107,7 @@
 
 .card-tasks li {
     font-size: 10px;
+    font-weight: normal;
 }
 
 .card-project-name {
@@ -89,14 +119,10 @@
 }
 
 div.hidden {
-    display: none;
-    opacity: 0;
-    -o-transition-property: opacity;
-    -o-transition-duration: 4s;
+    opacity: 0.0;   
 }
 
 *:hover > div.hidden {
-    display: block; 
     opacity: 1.0;
 }
 
@@ -127,7 +153,7 @@ div.hidden {
     
 .lane {
     width: 260px;
-    border-top: 2px solid rgba(0, 0, 0, 0.33); 
+    border-top: 2px solid rgba(0, 0, 0, 0.33);
 }
 
 .lane + .lane {
