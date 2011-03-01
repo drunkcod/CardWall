@@ -21,7 +21,7 @@ type PivotalTask() =
         member this.GetSchema() = null
         member this.ReadXml reader =
             reader.ReadStartElement()
-            while reader.Read() && not (reader.Name = "task" && reader.NodeType = XmlNodeType.EndElement) do
+            let rec loop () = 
                 if reader.NodeType = XmlNodeType.Element then
                     match reader.Name with
                     | "id" -> this.id <- reader.ReadElementContentAsInt()
@@ -30,4 +30,8 @@ type PivotalTask() =
                     | "complete" -> this.complete <- reader.ReadElementContentAsBoolean()
                     | "created_at" -> this.createdAt <- reader.ReadElementContentAsString() |> PivotalParse.dateTime
                     | _ -> reader.Skip()
+                if reader.NodeType <> XmlNodeType.EndElement && reader.Read() then
+                    loop()
+            loop ()
+
         member this.WriteXml writer = ()

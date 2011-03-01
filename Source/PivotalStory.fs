@@ -63,8 +63,8 @@ type PivotalStory() =
     interface IXmlSerializable with
         member this.GetSchema() = null
         member this.ReadXml reader = 
-            reader.ReadStartElement("story")
-            while reader.Read() && not (reader.Name = "story" && reader.NodeType = XmlNodeType.EndElement) do
+            reader.ReadStartElement()
+            let rec loop () =
                 if reader.NodeType = XmlNodeType.Element then
                     match reader.Name with
                     | "id" -> this.id <- reader.ReadElementContentAsInt()
@@ -83,6 +83,8 @@ type PivotalStory() =
                                 (task :> IXmlSerializable).ReadXml(reader)
                                 tasks.Add(task)
                     | _ -> reader.Skip()
-
+                if reader.NodeType <> XmlNodeType.EndElement && reader.Read() then
+                    loop ()
+            loop ()
         member this.WriteXml writer = ()
 

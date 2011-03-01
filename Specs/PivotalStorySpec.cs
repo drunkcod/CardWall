@@ -6,6 +6,8 @@ using System.Xml.Serialization;
 using Cone;
 using System.Xml;
 using System.Resources;
+using System.Xml.XPath;
+using System.IO;
 
 namespace CardWall
 {
@@ -49,6 +51,22 @@ namespace CardWall
 
             public void Tasks() {
                 Verify.That(() => Story.Tasks.Count() == 2);
+            }
+
+            public void multiple_stories() {
+                var xml = new XPathDocument(GetType().Assembly.GetManifestResourceStream("CardWall.Specs.SampleStories.xml"));
+                var storyNodes = xml.CreateNavigator().Select("//story");
+                var stories = new List<PivotalStory>();
+                while(storyNodes.MoveNext()) {
+                    Console.WriteLine(storyNodes.Current.OuterXml);
+                    var item = new PivotalStory();
+                    (item as IXmlSerializable).ReadXml(storyNodes.Current.ReadSubtree());
+                    stories.Add(item);
+                }
+
+                Verify.That(() => stories.Count == 2);
+                Verify.That(() => stories[0].Id == 1);
+                Verify.That(() => stories[1].Id == 2);
             }
         }
     }
