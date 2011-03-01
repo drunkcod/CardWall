@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System;
 using System.Collections.ObjectModel;
+using System.Linq;
 
 namespace CardWall.Models
 {
@@ -19,6 +20,7 @@ namespace CardWall.Models
         public string CurrentState;
         public IEnumerable<string> Labels { get { return labels; } }
         public IEnumerable<CardBadge> Badges { get { return badges; } }
+        public int TasksDone { get { return Tasks.Count(x => x.IsComplete); } }
         public ReadOnlyCollection<CardTask> Tasks { get { return tasks.AsReadOnly(); } }
         public string ProjectName;
         public int? Size;

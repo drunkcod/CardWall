@@ -10,6 +10,7 @@ type PivotalStoryType =
     | Bug = 1
     | Chore = 2
     | Feature = 3
+    | Release = 4
 
 type PivotalStoryState =
     | Unknown = 0
@@ -45,9 +46,10 @@ type PivotalStory() =
 
     static member private ParseStoryType =
         function
-        | "feature" -> PivotalStoryType.Feature
         | "bug" -> PivotalStoryType.Bug
         | "chore" -> PivotalStoryType.Chore
+        | "feature" -> PivotalStoryType.Feature
+        | "release" -> PivotalStoryType.Release
         | _ -> PivotalStoryType.Unknown
 
     static member private ParseStoryState =

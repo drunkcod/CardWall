@@ -14,7 +14,7 @@
     border-radius: 15px;
     box-shadow: 10px 10px 10px rgba(50%, 50%, 50%, 0.3);
     padding: 10px;
-    min-height: 100px;
+    padding-bottom: 60px;
     width: 240px;
     position: relative;
     top: 0px;
@@ -46,9 +46,7 @@
     right: 10px;
 }
 
-.card-summary 
-{
-    min-height: 48px;
+.card-summary {
 }
    
 .card-badges {
@@ -64,21 +62,37 @@
   display: inline;
 }
 .card-tasks {
+}
+
+.card-tasks img {
+    vertical-align: middle;
+    padding-right: 3px;
+}
+
+.card-tasks ul {
   margin: 0;
   padding: 0;
   list-style-type: none;
-  padding-bottom: 50px;
 }
 
 .card-tasks li {
-  display: inline;
+    font-size: 10px;
 }
+
 .card-project-name {
   position: absolute;
   top: 10px;
   left: 10px;
   font-size: 10px;
   color: rgba(0, 0, 0, 0.33);
+}
+
+div.hidden {
+    display: none;
+}
+
+*:hover > div.hidden {
+    display: block; 
 }
 
 .feature {

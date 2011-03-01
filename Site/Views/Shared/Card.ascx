@@ -3,9 +3,14 @@
     <h1><a href="<%=Model.Url%>" class="card-title" target="_blank"><%=Model.Title %></a></h1>
     <div class="card-project-name"><%=Model.ProjectName %></div>
     <div class='card-summary'><%=Model.Summary %>
-        <ul class="card-tasks"><%foreach(var item in Model.Tasks) { %>
-        <li><img title="<%=item.Name%>" src="<%=Url.Content(item.ImageUrl)%>" /></li>
-    <%} %></ul>
+        <%if(Model.Tasks.Count != 0){ %>
+        <div class="card-tasks">
+            <%=Model.TasksDone%>/<%=Model.Tasks.Count%> tasks done
+            <div class="hidden"><ul><%foreach(var item in Model.Tasks) { %>
+            <li><img title="<%=item.Name%>" src="<%=Url.Content(item.ImageUrl)%>" /><%=item.Name %></li><%} %></ul>
+            </div>
+        </div>
+        <%} %>
     </div>
     <div class='card-footer'><%=Model.Owner %><br />
         <span class='card-labels'><%foreach(var item in Model.Labels){ %><%=item%>&nbsp; <%} %></span>
