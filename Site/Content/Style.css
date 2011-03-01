@@ -62,6 +62,7 @@
   display: inline;
 }
 .card-tasks {
+    font-size: smaller;
 }
 
 .card-tasks img {
@@ -89,10 +90,14 @@
 
 div.hidden {
     display: none;
+    opacity: 0;
+    -o-transition-property: opacity;
+    -o-transition-duration: 4s;
 }
 
 *:hover > div.hidden {
     display: block; 
+    opacity: 1.0;
 }
 
 .feature {
