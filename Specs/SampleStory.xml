@@ -1,0 +1,43 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<story>
+  <id type="integer">42</id>
+  <project_id type="integer">12345</project_id>
+  <story_type>feature</story_type>
+  <url>http://www.pivotaltracker.com/story/show/42</url>
+  <estimate type="integer">1</estimate>
+  <current_state>accepted</current_state>
+  <lighthouse_id>43</lighthouse_id>
+  <lighthouse_url>http://mylighthouseapp.com/projects/100/tickets/43</lighthouse_url>
+  <description></description>
+  <name>More power to shields</name>
+  <requested_by>James Kirk</requested_by>
+  <owned_by>Montgomery Scott</owned_by>
+  <created_at type="datetime">2008/12/10 00:00:00 UTC</created_at>
+  <accepted_at type="datetime">2008/12/10 00:00:00 UTC</accepted_at>
+  <labels>label 1,label 2,label 3</labels>
+  <tasks type="array">
+    <task>
+      <id type="integer">8497</id>
+      <description>My Task</description>
+      <position>1</position>
+      <complete>false</complete>
+      <created_at type="datetime">2009/08/24 10:19:35 CEST</created_at>
+    </task>
+    <task>
+      <id type="integer">8498</id>
+      <description>My Second Task</description>
+      <position>2</position>
+      <complete>true</complete>
+      <created_at type="datetime">2009/08/24 10:19:35 CET</created_at>
+    </task>
+  </tasks>
+  <attachments type="array">
+    <attachment>
+      <id type="integer">4</id>
+      <filename>shield_improvements.pdf</filename>
+      <description>How to improve the shields in 3 easy steps.</description>
+      <uploaded_by>James Kirk</uploaded_by>
+      <uploaded_at type="datetime">2008/12/10 00:00:00 UTC</uploaded_at>
+    </attachment>
+  </attachments>
+</story>

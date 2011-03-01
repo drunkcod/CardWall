@@ -2,6 +2,7 @@
 
 open System
 open System.Net
+open System.Xml.Serialization
 open System.Xml.XPath
 open System.Threading.Tasks
 open System.Collections.Generic
@@ -10,17 +11,6 @@ type PivotalProjectMember = {
     Name : string
     EmailAddress : string
     Initials : string
-}
-
-type PivotalStory = {
-    ProjectId : int
-    Type : string
-    Estimate : Nullable<int>
-    CurrentState : string
-    Url : string
-    Name : string
-    OwnedBy : string
-    Labels : string[]
 }
 
 type PivotalProject = {
@@ -69,5 +59,6 @@ type PivotalTracker(trackerToken) =
         request.ContinueWith(fun (task : Task<XPathNavigator>) -> 
             task.Result
             |> XPath.map "//story" (fun x ->
-                let nodeValue xpath = x.NodeValueOrDefault(xpath, "")
-                { ProjectId = int(nodeValue "project_id"); Type = nodeValue "story_type"; Estimate = intOrNull(nodeValue "estimate"); CurrentState = nodeValue "current_state"; Url = nodeValue "url"; Name = nodeValue "name"; OwnedBy = nodeValue "owned_by"; Labels = (nodeValue "labels").Split([|','|]) }))
+                let story = PivotalStory()
+                (story :> IXmlSerializable).ReadXml(x.ReadSubtree())
+                story))

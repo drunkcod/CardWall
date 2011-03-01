@@ -41,6 +41,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="XPath.fs" />
+    <Compile Include="PivotalParse.fs" />
+    <Compile Include="PivotalTask.fs" />
+    <Compile Include="PivotalStory.fs" />
     <Compile Include="PivotalTracker.fs" />
     <Compile Include="Gravatar.fs" />
   </ItemGroup>

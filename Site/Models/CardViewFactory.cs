@@ -17,8 +17,8 @@ namespace CardWall.Models
 
         public CardView MakeCardForStory(PivotalStory story) {
             var card = new CardView {
-                Type = story.Type,
-                CurrentState = story.CurrentState,
+                Type = story.Type.ToString().ToLower(),
+                CurrentState = TranslateState(story.CurrentState),
                 Size = story.Estimate,
                 Title = story.Name,
                 Owner = GetOwner(story),
@@ -39,6 +39,18 @@ namespace CardWall.Models
                 card.AddBadge(badge);
 
             return card;
+        }
+
+        string TranslateState(PivotalStoryState state) {
+            switch(state) {
+                case PivotalStoryState.Unscheduled: return "unscheduled"; 
+                case PivotalStoryState.Unstarted: return "unstarted";
+                case PivotalStoryState.Started: return "started";
+                case PivotalStoryState.Finished: return "finished";
+                case PivotalStoryState.Delivered: return "delivered";
+                case PivotalStoryState.Accepted: return "accepted";
+            }
+            throw new KeyNotFoundException();
         }
 
         bool TryGetBadge(string label, out CardBadge badge) {
