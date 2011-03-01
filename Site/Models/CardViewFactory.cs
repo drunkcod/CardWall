@@ -15,6 +15,9 @@ namespace CardWall.Models
             this.badges = badges;
         }
 
+        public string TaskCompleteUrl;
+        public string TaskPendingUrl;
+
         public CardView MakeCardForStory(PivotalStory story) {
             var card = new CardView {
                 Type = story.Type.ToString().ToLower(),
@@ -37,6 +40,14 @@ namespace CardWall.Models
             
             if(TryGetBadge("type:" + story.Type, out badge))
                 card.AddBadge(badge);
+
+            foreach(var item in story.Tasks)
+                card.AddTask(new CardTask
+                {
+                    Name = item.Description,
+                    IsComplete = item.IsComplete,
+                    ImageUrl = item.IsComplete ? TaskCompleteUrl : TaskPendingUrl
+                });
 
             return card;
         }

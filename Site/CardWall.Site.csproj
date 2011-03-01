@@ -72,6 +72,7 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Models\CardBadge.cs" />
+    <Compile Include="Models\CardTask.cs" />
     <Compile Include="Models\CardView.cs" />
     <Compile Include="Models\CardViewFactory.cs" />
     <Compile Include="Models\DefaultBadgeBuilder.cs" />

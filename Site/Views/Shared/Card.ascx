@@ -2,7 +2,11 @@
 <div class="<%=Model.Type%> card<%if(Model.Size.HasValue){%> size<%=Model.Size%><%} %>">
     <h1><a href="<%=Model.Url%>" class="card-title" target="_blank"><%=Model.Title %></a></h1>
     <div class="card-project-name"><%=Model.ProjectName %></div>
-    <div class='card-summary'><%=Model.Summary %></div>
+    <div class='card-summary'><%=Model.Summary %>
+        <ul class="card-tasks"><%foreach(var item in Model.Tasks) { %>
+        <li><img title="<%=item.Name%>" src="<%=Url.Content(item.ImageUrl)%>" /></li>
+    <%} %></ul>
+    </div>
     <div class='card-footer'><%=Model.Owner %><br />
         <span class='card-labels'><%foreach(var item in Model.Labels){ %><%=item%>&nbsp; <%} %></span>
     </div>
@@ -10,6 +14,6 @@
     <img class='card-avatar' src="<%=Url.Content(Model.AvatarUrl) %>" />
     <%} %>
     <ul class="card-badges"><%foreach(var item in Model.Badges) { %>
-        <li><img title="<%=item.Name%>" src="<%=Url.Content(item.Url)%>" /></li>
+        <li><img title="<%=item.Name%>" src="<%=Url.Content(item.ImageUrl)%>" /></li>
     <%}%></ul>
 </div>

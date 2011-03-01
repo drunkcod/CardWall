@@ -11,6 +11,6 @@ namespace CardWall.Models
         public string Name;
         
         [XmlAttribute("url")]
-        public string Url;
+        public string ImageUrl;
     }
 }

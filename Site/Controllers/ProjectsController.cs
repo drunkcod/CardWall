@@ -45,6 +45,8 @@ namespace CardWall.Controllers
             var membersLookup = tracker.ProjectMembers(id).ContinueWith(task => CreateLookup(task.Result));
             return Task.Factory.ContinueWhenAll(new Task[]{ currentIteration, projectsLookup, membersLookup }, _ => {
                 var cards = new CardViewFactory(projectsLookup.Result, membersLookup.Result, CreateBadgeBuilder());
+                cards.TaskCompleteUrl = Url.Content("~/Content/FamFamFam/bullet_star.png");
+                cards.TaskPendingUrl = Url.Content("~/Content/FamFamFam/bullet_orange.png");
                 return new List<CardView>(currentIteration.Result.Select(cards.MakeCardForStory));
             });
         }
