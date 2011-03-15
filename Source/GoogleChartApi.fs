@@ -52,10 +52,13 @@ type ChartSeries = {
 type LineStyle =
     | Filled of int
     | Dashed of int * int * int
-    with 
+    with
         static member Default = Filled(1)
 
 type LineChartMode = Default | SparkLines | XY
+
+type IWriter =
+    abstract Write : format:string * [<ParamArray>]args:obj[] -> IWriter
 
 type LineChart = {
     Width : int
@@ -79,6 +82,19 @@ type LineChart = {
             | XY -> "lxy"
 
         let result = StringBuilder(GoogleChartApi.BaseUrl).AppendFormat("?cht={0}", modeString x.Mode)
+
+        let newWriter (first:string) (next:string) =
+            let appendFormat(sep:string, format, args) = result.Append(sep).AppendFormat(format, args) |> ignore
+            let next' = 
+                { new IWriter with
+                    member this.Write(format, args) = 
+                        appendFormat(next, format, args)
+                        this }
+            { new IWriter with
+                member this.Write(format, args) =
+                    appendFormat(first, format, args) 
+                    next' }
+
         let hex (c:Color) = 
             if c.A = 255uy then
                 String.Format("{0:x2}{1:x2}{2:x2}", c.R, c.G, c.B)
@@ -86,12 +102,7 @@ type LineChart = {
 
         result.AppendFormat("&chs={0}x{1}", x.Width, x.Height) |> ignore
 
-        let format = ref "&chxt={0}"
-        x.Axes |> Seq.iter (fun axis -> 
-            result.AppendFormat(!format, axisToString axis.Axis) |> ignore
-            format := ",{0}")
-
-        format := "&chxr={0},{1},{2}"
+        let format = ref "&chxr={0},{1},{2}"
         x.Axes |> Seq.iteri (fun n axis ->
             match axis.Range with
             | (0, 100) -> ()
@@ -113,44 +124,38 @@ type LineChart = {
                 axis.Positions |> Seq.iter (fun x -> result.AppendFormat(",{0}", x) |> ignore)
                 format := "|{0}")
 
-        let sep = ref "&chm="
-        x.Markers |> Seq.iter (fun marker ->
-            match marker with
-            | Circle(color, series, whichPoints, size) -> result.AppendFormat("{0}o,{1},{2},{3},{4}", !sep, hex color, series, whichPoints, size)
-            | FillToBottom(color, series) -> result.AppendFormat("{0}B,{1},{2},0,0", !sep, hex color, series)
-            | FillBetween(color, startSeries, endSeries) -> result.AppendFormat("{0}b,{1},{2},{3},0", !sep, hex color, startSeries, endSeries)
-            |> ignore
-            sep := "|")
+        x.Axes
+        |> Seq.fold (fun (writer:IWriter) axis -> writer.Write(axisToString axis.Axis)) (newWriter "&chxt=" ",")
+        |> ignore
 
-        let format = ref "&chdl={0}"
+        x.Markers 
+        |> Seq.fold (fun (writer:IWriter) marker ->
+            match marker with
+            | Circle(color, series, whichPoints, size) -> writer.Write("o,{0},{1},{2},{3}", hex color, series, whichPoints, size)
+            | FillToBottom(color, series) -> writer.Write("B,{0},{1},0,0", hex color, series)
+            | FillBetween(color, startSeries, endSeries) -> writer.Write("b,{0},{1},{2},0", hex color, startSeries, endSeries)) (newWriter "&chm=" "|")
+        |> ignore
+
         x.Series 
         |> Seq.filter (fun x -> x.Name <> "")
-        |> Seq.iter (fun series ->
-            result.AppendFormat(!format, series.Name) |> ignore
-            format := "|{0}")
+        |> Seq.fold (fun (writer:IWriter) series -> writer.Write(series.Name)) (newWriter "&chdl=" "|")
+        |> ignore
 
-        let format = ref "&chco={0}"
         x.Series
         |> Seq.filter (fun series -> series.Color <> Color.White)
-        |> Seq.iter (fun series ->
-            result.AppendFormat(!format, hex series.Color) |> ignore
-            format := ",{0}")
+        |> Seq.fold (fun (writer:IWriter) series -> writer.Write(hex series.Color)) (newWriter "&chco=" ",")
+        |> ignore
 
-        let all = x.Series |> Seq.collect (fun x -> x.Data)
+        x.Series 
+        |> Seq.fold (fun (writer:IWriter) series -> 
+            writer.Write(x.DataEncoding.Encode(series.Data))) (newWriter "&chd=e:" ",")
+        |> ignore
 
-        let format = ref "&chd=e:{0}"
-        x.Series |> Seq.iter (fun series -> 
-            result.AppendFormat(!format, x.DataEncoding.Encode(series.Data)) |> ignore
-            format := ",{0}")
-
-        let sep = ref "&chls="
         x.LineStyles 
-        |> Seq.iter (fun style -> 
+        |> Seq.fold (fun (writer:IWriter) style -> 
             match style with
-            | Filled(width) -> result.AppendFormat("{0}{1}", !sep, width)
-            | Dashed(width, dash, space) -> result.AppendFormat("{0}{1},{2},{3}", !sep, width, dash, space)
-            |> ignore
-            sep := "|")
-            
+            | Filled(width) -> writer.Write("{0}", width)
+            | Dashed(width, dash, space) -> writer.Write("{0},{1},{2}", width, dash, space)) (newWriter "&chls=" "|")
+        |> ignore
             
         result.ToString()
