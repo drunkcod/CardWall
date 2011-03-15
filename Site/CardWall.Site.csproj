@@ -67,6 +67,7 @@
   <ItemGroup>
     <Compile Include="BadgeConfiguration.cs" />
     <Compile Include="Controllers\BadgesController.cs" />
+    <Compile Include="Controllers\ChartsController.cs" />
     <Compile Include="Controllers\ProjectsController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -90,6 +91,7 @@
     <Content Include="Content\Style.css" />
     <Content Include="Global.asax" />
     <Content Include="Views\Badges\Index.aspx" />
+    <Content Include="Views\Charts\Index.aspx" />
     <Content Include="Views\Projects\CurrentIteration.aspx" />
     <Content Include="Views\Shared\Card.ascx" />
     <Content Include="Web.config" />
@@ -127,8 +129,8 @@
       <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
         <WebProjectProperties>
           <UseIIS>False</UseIIS>
-          <AutoAssignPort>True</AutoAssignPort>
-          <DevelopmentServerPort>56256</DevelopmentServerPort>
+          <AutoAssignPort>False</AutoAssignPort>
+          <DevelopmentServerPort>1234</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
           <IISUrl>http://localhost/CardWall</IISUrl>
           <NTLMAuthentication>False</NTLMAuthentication>
