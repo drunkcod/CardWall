@@ -35,6 +35,12 @@ type PivotalTracker(trackerToken) =
 
         Task.Factory.FromAsync((fun a b -> request.BeginGetResponse(a, b)), toXml, null)
 
+    member private this.GetStories path =
+        let request = this.XmlRequest(path)
+        request.ContinueWith(fun (task : Task<XPathNavigator>) -> 
+            task.Result
+            |> XPath.map "//story" (fun x -> x.ReadSubtree() |> Xml.read (PivotalStory())))
+
     member this.Projects() =
         let request = this.XmlRequest("/projects")
         request.ContinueWith(fun (task : Task<XPathNavigator>) ->
@@ -43,7 +49,7 @@ type PivotalTracker(trackerToken) =
                 let nodeValue xpath = x.NodeValueOrDefault(xpath, "")
                 { Id = int(nodeValue "id"); Name = nodeValue "name" }))
 
-    member this.ProjectMembers (project:int) =
+    member this.ProjectMembers(project:int) =
         let request = this.XmlRequest(String.Format("/projects/{0}/memberships", project))
         request.ContinueWith(fun (task : Task<XPathNavigator>) ->
             task.Result
@@ -51,14 +57,6 @@ type PivotalTracker(trackerToken) =
                 let nodeValue xpath = x.NodeValueOrDefault(xpath, "")
                 { Name = nodeValue "name"; EmailAddress = nodeValue "email"; Initials = nodeValue "initials" }))
 
-    member this.CurrentIteration (project:int) =
-        let request = this.XmlRequest(String.Format("/projects/{0}/iterations/current", project))
-        let intOrNull x = 
-            if String.IsNullOrEmpty(x) then Nullable()
-            else Nullable(int(x))
-        request.ContinueWith(fun (task : Task<XPathNavigator>) -> 
-            task.Result
-            |> XPath.map "//story" (fun x ->
-                let story = PivotalStory()
-                (story :> IXmlSerializable).ReadXml(x.ReadSubtree())
-                story))
+    member this.CurrentIteration(project:int) = this.GetStories(String.Format("/projects/{0}/iterations/current", project))
+
+    member this.Stories(project:int) = this.GetStories(String.Format("/projects/{0}/stories", project))

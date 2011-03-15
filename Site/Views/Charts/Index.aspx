@@ -9,7 +9,6 @@
 <body>
     <div>
     <img src="<%=Model.ToString() %>" />
-    <img src="http://chart.apis.google.com/chart?chxr=0,0,46&chxt=y&chs=300x225&cht=lc&chco=3D7930&chd=s:Xhiugtqi&chg=14.3,-1,1,1&chls=2,4,0&chm=o,3D7930,0,-1,10|o,FFFFFF,0,-1,5" />
     </div>
 </body>
 </html>

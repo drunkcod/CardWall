@@ -25,8 +25,7 @@
     z-index: 0;
 }
 
-.card h1 
-{
+.card h1 {
     overflow: hidden;
 }
 
@@ -73,7 +72,7 @@
 .card-tasks {
     font-size: smaller;
     position: relative;
-    top: 100px;
+    top: 110px;
     left: 40px;
     z-index: 1;
 }

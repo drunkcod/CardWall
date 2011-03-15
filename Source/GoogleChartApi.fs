@@ -12,25 +12,24 @@ module GoogleChartApi =
 type IChartDataEncoding =
     abstract member Encode : data:seq<int> -> string
 
-type GoogleExtendedEncoding(min, max) =
+type GoogleExtendedEncoding() =
     [<Literal>] 
     let Alphabet = "ABCDEFGHIJKLMNOPQSRTUVWXYZabcdefghijklmonpqrstuvwxyz0123456789.-"
-    [<Literal>] 
-    let MaxValue = 4095
     
+    member x.MaxValue = 4095
+
     interface IChartDataEncoding with
         member x.Encode data =
             let result = StringBuilder()
             data |> Seq.iter (fun value ->                
-                let d,r = Math.DivRem(x.Scale value, Alphabet.Length)
+                let d,r = Math.DivRem(x.Check value, Alphabet.Length)
                 result.Append([|Alphabet.[d]; Alphabet.[r]|]) |> ignore)
             result.ToString()
 
-    member x.Scale value = 
-        if value <= max && value >= min then
-            (value - min) * MaxValue / (max - min)
-        else 
+    member x.Check value = 
+        if value < 0 || value > x.MaxValue then
             raise(new ArgumentOutOfRangeException(x.ToString()))
+        else value
 
 type Axis = X | Y | Top | Left
 
@@ -55,12 +54,11 @@ type LineChartMode = Default | SparkLines | XY
 type LineChart = {
     Width : int
     Height : int 
-    MinValue : int
-    MaxValue : int
     Axes : ChartAxis seq 
     Series : ChartSeries seq 
     Markers : ChartMarker seq 
-    Mode : LineChartMode } with
+    Mode : LineChartMode 
+    DataEncoding : IChartDataEncoding } with
     override x.ToString() =
         let axisToString = function
             | X -> "x"
@@ -118,21 +116,24 @@ type LineChart = {
             sep := "|")
 
         let format = ref "&chdl={0}"
-        x.Series |> Seq.iter (fun series ->
+        x.Series 
+        |> Seq.filter (fun x -> x.Name <> "")
+        |> Seq.iter (fun series ->
             result.AppendFormat(!format, series.Name) |> ignore
             format := "|{0}")
 
         let format = ref "&chco={0}"
-        x.Series |> Seq.iter (fun series ->
+        x.Series
+        |> Seq.filter (fun series -> series.Color <> Color.White)
+        |> Seq.iter (fun series ->
             result.AppendFormat(!format, hex series.Color) |> ignore
             format := ",{0}")
 
         let all = x.Series |> Seq.collect (fun x -> x.Data)
-        let encoding = GoogleExtendedEncoding(x.MinValue, x.MaxValue) :> IChartDataEncoding            
 
         let format = ref "&chd=e:{0}"
         x.Series |> Seq.iter (fun series -> 
-            result.AppendFormat(!format, encoding.Encode(series.Data)) |> ignore
+            result.AppendFormat(!format, x.DataEncoding.Encode(series.Data)) |> ignore
             format := ",{0}")
             
         result.ToString()
