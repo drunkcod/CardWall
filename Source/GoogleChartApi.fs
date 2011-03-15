@@ -49,6 +49,12 @@ type ChartSeries = {
     Color : Color
     Data : int seq }
 
+type LineStyle =
+    | Filled of int
+    | Dashed of int * int * int
+    with 
+        static member Default = Filled(1)
+
 type LineChartMode = Default | SparkLines | XY
 
 type LineChart = {
@@ -58,7 +64,8 @@ type LineChart = {
     Series : ChartSeries seq 
     Markers : ChartMarker seq 
     Mode : LineChartMode 
-    DataEncoding : IChartDataEncoding } with
+    DataEncoding : IChartDataEncoding 
+    LineStyles : LineStyle seq } with
     override x.ToString() =
         let axisToString = function
             | X -> "x"
@@ -135,5 +142,15 @@ type LineChart = {
         x.Series |> Seq.iter (fun series -> 
             result.AppendFormat(!format, x.DataEncoding.Encode(series.Data)) |> ignore
             format := ",{0}")
+
+        let sep = ref "&chls="
+        x.LineStyles 
+        |> Seq.iter (fun style -> 
+            match style with
+            | Filled(width) -> result.AppendFormat("{0}{1}", !sep, width)
+            | Dashed(width, dash, space) -> result.AppendFormat("{0}{1},{2},{3}", !sep, width, dash, space)
+            |> ignore
+            sep := "|")
+            
             
         result.ToString()

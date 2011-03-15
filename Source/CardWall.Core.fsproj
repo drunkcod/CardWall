@@ -7,6 +7,10 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{dec7e915-245a-4f62-8c70-a4582adcd25c}</ProjectGuid>
     <OutputType>Library</OutputType>
+    <OutputPath>$(SolutionDir)\Build</OutputPath>
+    <DocumentationFile>$(OutputPath)\CardWall.Core.XML</DocumentationFile>
+    <IntermediateOutputPath>$(OutputPath)\obj\$(ProjectName)</IntermediateOutputPath>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>CardWall.Core</RootNamespace>
     <AssemblyName>CardWall.Core</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
@@ -17,19 +21,15 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <Tailcalls>false</Tailcalls>
-    <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>bin\Debug\CardWall.Core.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <Tailcalls>true</Tailcalls>
-    <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>bin\Release\CardWall.Core.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />

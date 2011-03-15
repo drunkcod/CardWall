@@ -18,7 +18,7 @@ namespace CardWall.Controllers
         }
     }
 
-    static class Enumerable 
+    static class IEnumerableExtensions
     {
         public static IEnumerable<int> Scale(this IEnumerable<int> source, int sourceOffset, int sourceRange, int targetOffset, int targetRange) {
             return source.Select(x => targetRange * x / sourceRange + targetOffset - sourceOffset); 
@@ -61,14 +61,14 @@ namespace CardWall.Controllers
             var xAxis = new ChartAxis(Axis.X, new Tuple<int, int>(0, 1), new[]{ startDate.ToShortDateString(), endDate.ToShortDateString() }, new[]{0, 1});
             var x = new ChartSeries("Points Remaining", Color.CornflowerBlue, 
                 data.Select(item => (int)(item.Date - startDate).TotalDays).Scale(0, totalDays, 0, maxValue));
-
-            var xBurnLine = new ChartSeries("", Color.Firebrick, new []{ 0, maxValue });
+          
+            var xBurnLine = new ChartSeries("", Color.FromArgb(128, Color.Firebrick), new []{ 0, maxValue });
             var yBurnLine = new ChartSeries("", Color.White, new []{ maxValue, 0});
 
             var chart = new LineChart(800, 300, new []{ xAxis, yAxis }, new []{ x, ys, xBurnLine, yBurnLine}, new []{
                 ChartMarker.NewCircle(Color.CornflowerBlue, 0, -1, 8),
                 ChartMarker.NewCircle(Color.White, 0, -1, 4)
-            }, LineChartMode.XY, encoding);
+            }, LineChartMode.XY, encoding, new[]{ LineStyle.Default, LineStyle.NewDashed(2, 2, 4) });
             return View(chart);
         }
 

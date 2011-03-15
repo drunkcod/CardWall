@@ -7,6 +7,8 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{64F50D88-05F6-46D1-A9F7-F59326D71246}</ProjectGuid>
     <OutputType>Library</OutputType>
+    <OutputPath>$(SolutionDir)\Build</OutputPath>
+    <IntermediateOutputPath>$(SolutionDir)\Build\obj\$(ProjectName)</IntermediateOutputPath>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>CardWall.Specs</RootNamespace>
     <AssemblyName>CardWall.Specs</AssemblyName>
@@ -17,7 +19,6 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -25,7 +26,6 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -48,7 +48,6 @@
   <ItemGroup>
     <Compile Include="PivotalStorySpec.cs" />
     <Compile Include="PivotalTaskSpec.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Source\CardWall.Core.fsproj">
@@ -64,6 +63,9 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="SampleStories.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Properties\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
