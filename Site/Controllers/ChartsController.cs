@@ -30,16 +30,22 @@ namespace CardWall.Controllers
         public ActionResult Index() {
             var tracker = new PivotalTracker(Environment.GetEnvironmentVariable("TrackerToken", EnvironmentVariableTarget.Machine));
 
-            var todaysPoints = tracker.Stories(173053).Result
+            var stories = 
+                tracker.Stories(173053).Result
                 .Where(item => item.Labels.Contains("team south", StringComparer.InvariantCultureIgnoreCase))
-                .Sum(item => item.Estimate ?? 0); 
+                .Where(item => item.CurrentState != PivotalStoryState.Accepted).ToArray();
+
+            var todaysPoints = stories.Sum(item => Math.Max(0, item.Estimate ?? 0)); 
 
             var data = new[]{
-                new BurndownData(DateTime.Today, todaysPoints)
+                new BurndownData(DateTime.Parse("2011-02-21"), 24)
+                ,new BurndownData(DateTime.Parse("2011-02-28"), 16)
+                ,new BurndownData(DateTime.Parse("2011-03-08"), 19)
+                ,new BurndownData(DateTime.Parse("2011-03-14"), 25)
                 ,new BurndownData(DateTime.Today, todaysPoints)
             };
          
-            var startDate = new DateTime(2011, 3, 1);
+            var startDate = data.Min(item => item.Date);
             var endDate = new DateTime(2011, 6, 1);
 
             var totalDays = (int)Math.Ceiling((endDate - startDate).TotalDays);
