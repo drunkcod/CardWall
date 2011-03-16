@@ -60,7 +60,15 @@ type LineChartMode = Default | SparkLines | XY
 type IWriter =
     abstract Write : format:string * [<ParamArray>]args:obj[] -> IWriter
 
+type Format =
+    | FormatSingle of string * obj[]
+    | FormatMultiple of (string * obj[]) * (string * obj[]) seq
+    with
+        static member single(format:string, [<ParamArray>]args:obj[]) = FormatSingle(format, args)
+        static member args(format:string, [<ParamArray>]args:obj[]) = format, args
+
 type LineChart = {
+    Title : string
     Width : int
     Height : int 
     Axes : ChartAxis seq 
@@ -83,79 +91,78 @@ type LineChart = {
 
         let result = StringBuilder(GoogleChartApi.BaseUrl).AppendFormat("?cht={0}", modeString x.Mode)
 
-        let newWriter (first:string) (next:string) =
-            let appendFormat(sep:string, format, args) = result.Append(sep).AppendFormat(format, args) |> ignore
-            let next' = 
-                { new IWriter with
-                    member this.Write(format, args) = 
-                        appendFormat(next, format, args)
-                        this }
-            { new IWriter with
-                member this.Write(format, args) =
-                    appendFormat(first, format, args) 
-                    next' }
+        result.AppendFormat("&chtt={0}", x.Title) |> ignore
+
+        let append(format, args) = result.AppendFormat(format, args) |> ignore
+        let rec appendF = function
+            | FormatSingle(format, args) -> append(format,args)
+            | FormatMultiple(first, rest) ->
+                append first
+                rest |> Seq.iter append
+
+        let appendFormat first next items =
+            items
+            |> Seq.zip (Seq.initInfinite (fun x -> if x = 0 then first else next))
+            |> Seq.iter (fun (sep, x) ->
+                result.Append(sep:string) |> ignore
+                appendF x)
 
         let hex (c:Color) = 
             if c.A = 255uy then
                 String.Format("{0:x2}{1:x2}{2:x2}", c.R, c.G, c.B)
             else String.Format("{0:x2}{1:x2}{2:x2}{3:x2}", c.R, c.G, c.B, c.A)
 
-        result.AppendFormat("&chs={0}x{1}", x.Width, x.Height) |> ignore
+        append <| Format.args("&chs={0}x{1}", x.Width, x.Height)
 
-        let format = ref "&chxr={0},{1},{2}"
-        x.Axes |> Seq.iteri (fun n axis ->
+        let numberedAxes = x.Axes |> Seq.mapi (fun n axis -> (n, axis))
+
+        numberedAxes
+        |> Seq.choose (fun (n, axis) ->
             match axis.Range with
-            | (0, 100) -> ()
-            | (min, max) ->
-                result.AppendFormat(!format, n, min, max) |> ignore
-                format := "|{0},{1},{2}")
+            | (0, 100) -> None
+            | (min, max) -> Some(Format.single("{0},{1},{2}", n, min, max)))
+        |> appendFormat "&chxr=" "|"
 
-        format := "&chxl={0}:"
-        x.Axes |> Seq.iteri (fun n axis -> 
-            if not(Seq.isEmpty axis.Labels) then 
-                result.AppendFormat(!format, n) |> ignore
-                axis.Labels |> Seq.iter (fun x -> result.AppendFormat("|{0}", x) |> ignore)
-                format := "|{0}:")
+        numberedAxes
+        |> Seq.choose (fun (n, axis) ->
+            if Seq.isEmpty axis.Labels then None
+            else Some(FormatMultiple(Format.args("{0}:", n), axis.Labels |> Seq.map (fun x -> Format.args("|{0}", x)))))
+        |> appendFormat "&chxl=" "|"
 
-        format := "&chxp={0}"
-        x.Axes |> Seq.iteri (fun n axis -> 
-            if not(Seq.isEmpty axis.Positions) then 
-                result.AppendFormat(!format, n) |> ignore
-                axis.Positions |> Seq.iter (fun x -> result.AppendFormat(",{0}", x) |> ignore)
-                format := "|{0}")
+        numberedAxes
+        |> Seq.choose (fun (n, axis) ->
+            if Seq.isEmpty axis.Positions then None
+            else Some(FormatMultiple(Format.args("{0}", n), axis.Positions |> Seq.map (fun x -> Format.args(",{0}", x)))))
+        |>  appendFormat "&chxp=" "|"
 
-        x.Axes
-        |> Seq.fold (fun (writer:IWriter) axis -> writer.Write(axisToString axis.Axis)) (newWriter "&chxt=" ",")
-        |> ignore
+        x.Axes |> Seq.map (fun x -> Format.single((axisToString x.Axis)))
+        |> appendFormat "&chxt=" ","
 
-        x.Markers 
-        |> Seq.fold (fun (writer:IWriter) marker ->
-            match marker with
-            | Circle(color, series, whichPoints, size) -> writer.Write("o,{0},{1},{2},{3}", hex color, series, whichPoints, size)
-            | FillToBottom(color, series) -> writer.Write("B,{0},{1},0,0", hex color, series)
-            | FillBetween(color, startSeries, endSeries) -> writer.Write("b,{0},{1},{2},0", hex color, startSeries, endSeries)) (newWriter "&chm=" "|")
-        |> ignore
+        x.Markers
+        |> Seq.map (function
+            | Circle(color, series, whichPoints, size) -> Format.single("o,{0},{1},{2},{3}", hex color, series, whichPoints, size)
+            | FillToBottom(color, series) -> Format.single("B,{0},{1},0,0", hex color, series)
+            | FillBetween(color, startSeries, endSeries) -> Format.single("b,{0},{1},{2},0", hex color, startSeries, endSeries)) 
+        |> appendFormat "&chm=" "|"
 
         x.Series 
-        |> Seq.filter (fun x -> x.Name <> "")
-        |> Seq.fold (fun (writer:IWriter) series -> writer.Write(series.Name)) (newWriter "&chdl=" "|")
-        |> ignore
+        |> Seq.choose (fun x -> if x.Name = "" then None else Some(Format.single(x.Name)))
+        |> appendFormat "&chdl=" "|"
 
         x.Series
-        |> Seq.filter (fun series -> series.Color <> Color.White)
-        |> Seq.fold (fun (writer:IWriter) series -> writer.Write(hex series.Color)) (newWriter "&chco=" ",")
-        |> ignore
+        |> Seq.choose (fun series -> 
+            if series.Color = Color.White then None
+            else Some(Format.single(hex series.Color)))
+        |> appendFormat "&chco=" ","
 
         x.Series 
-        |> Seq.fold (fun (writer:IWriter) series -> 
-            writer.Write(x.DataEncoding.Encode(series.Data))) (newWriter "&chd=e:" ",")
-        |> ignore
+        |> Seq.map (fun series -> Format.single(x.DataEncoding.Encode(series.Data))) 
+        |> appendFormat "&chd=e:" ","
 
-        x.LineStyles 
-        |> Seq.fold (fun (writer:IWriter) style -> 
-            match style with
-            | Filled(width) -> writer.Write("{0}", width)
-            | Dashed(width, dash, space) -> writer.Write("{0},{1},{2}", width, dash, space)) (newWriter "&chls=" "|")
-        |> ignore
+        x.LineStyles
+        |> Seq.map (function
+            | Filled(width) -> Format.single("{0}", width)
+            | Dashed(width, dash, space) -> Format.single("{0},{1},{2}", width, dash, space))
+        |> appendFormat "&chls=" "|"
             
         result.ToString()

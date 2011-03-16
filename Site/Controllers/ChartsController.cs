@@ -42,6 +42,7 @@ namespace CardWall.Controllers
                 ,new BurndownData(DateTime.Parse("2011-02-28"), 16)
                 ,new BurndownData(DateTime.Parse("2011-03-08"), 19)
                 ,new BurndownData(DateTime.Parse("2011-03-14"), 25)
+                ,new BurndownData(DateTime.Parse("2011-03-15"), 93)
                 ,new BurndownData(DateTime.Today, todaysPoints)
             };
          
@@ -65,7 +66,7 @@ namespace CardWall.Controllers
             var xBurnLine = new ChartSeries("", Color.FromArgb(128, Color.Firebrick), new []{ 0, maxValue });
             var yBurnLine = new ChartSeries("", Color.White, new []{ maxValue, 0});
 
-            var chart = new LineChart(800, 300, new []{ xAxis, yAxis }, new []{ x, ys, xBurnLine, yBurnLine}, new []{
+            var chart = new LineChart(string.Format("{0} points remaining", todaysPoints), 800, 300, new []{ xAxis, yAxis }, new []{ x, ys, xBurnLine, yBurnLine}, new []{
                 ChartMarker.NewCircle(Color.CornflowerBlue, 0, -1, 8),
                 ChartMarker.NewCircle(Color.White, 0, -1, 4)
             }, LineChartMode.XY, encoding, new[]{ LineStyle.Default, LineStyle.NewDashed(2, 2, 4) });
