@@ -57,15 +57,22 @@ type LineStyle =
 
 type LineChartMode = Default | SparkLines | XY
 
-type IWriter =
-    abstract Write : format:string * [<ParamArray>]args:obj[] -> IWriter
-
 type Format =
     | FormatSingle of string * obj[]
     | FormatMultiple of (string * obj[]) * (string * obj[]) seq
     with
         static member single(format:string, [<ParamArray>]args:obj[]) = FormatSingle(format, args)
         static member args(format:string, [<ParamArray>]args:obj[]) = format, args
+
+type GoogleChartWriter(writer:TextWriter) =
+    member this.Write(format:string, [<ParamArray>]args:obj[]) =
+        if args <> null then
+            for i = 0 to args.Length - 1 do
+                args.[i] <- 
+                    match args.[i] with
+                    | :? string as s -> s.Replace(' ', '+') :> obj
+                    | x -> x
+        writer.Write(format, args) |> ignore
 
 type LineChart = {
     Title : string
@@ -89,11 +96,15 @@ type LineChart = {
             | SparkLines -> "ls"
             | XY -> "lxy"
 
-        let result = StringBuilder(GoogleChartApi.BaseUrl).AppendFormat("?cht={0}", modeString x.Mode)
+        use s = new StringWriter()
+        let result = GoogleChartWriter(s) 
+               
+        result.Write(GoogleChartApi.BaseUrl)
+        result.Write("?cht={0}", modeString x.Mode)
 
-        result.AppendFormat("&chtt={0}", x.Title) |> ignore
+        result.Write("&chtt={0}", x.Title)
 
-        let append(format, args) = result.AppendFormat(format, args) |> ignore
+        let append(format, args) = result.Write(format, args)
         let rec appendF = function
             | FormatSingle(format, args) -> append(format,args)
             | FormatMultiple(first, rest) ->
@@ -104,7 +115,7 @@ type LineChart = {
             items
             |> Seq.zip (Seq.initInfinite (fun x -> if x = 0 then first else next))
             |> Seq.iter (fun (sep, x) ->
-                result.Append(sep:string) |> ignore
+                result.Write(sep:string) |> ignore
                 appendF x)
 
         let hex (c:Color) = 
@@ -151,7 +162,7 @@ type LineChart = {
 
         x.Series
         |> Seq.choose (fun series -> 
-            if series.Color = Color.White then None
+            if series.Color = Color.Transparent then None
             else Some(Format.single(hex series.Color)))
         |> appendFormat "&chco=" ","
 
@@ -165,4 +176,4 @@ type LineChart = {
             | Dashed(width, dash, space) -> Format.single("{0},{1},{2}", width, dash, space))
         |> appendFormat "&chls=" "|"
             
-        result.ToString()
+        s.ToString()
