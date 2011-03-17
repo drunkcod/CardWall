@@ -31,7 +31,11 @@ type GoogleExtendedEncoding() =
             raise(new ArgumentOutOfRangeException(x.ToString()))
         else value
 
-type Axis = X | Y | Top | Left
+type Axis = 
+    | X = 0 
+    | Y = 1 
+    | Top = 2
+    | Right = 3
 
 type ChartMarker =
     | Circle of Color * int * int * int
@@ -55,7 +59,10 @@ type LineStyle =
     with
         static member Default = Filled(1)
 
-type LineChartMode = Default | SparkLines | XY
+type LineChartMode = 
+    | Default = 1 
+    | SparkLines = 2
+    | XY = 3
 
 type Format =
     | FormatSingle of string * obj[]
@@ -70,8 +77,26 @@ type GoogleChartWriter(writer:TextWriter) =
             for i = 0 to args.Length - 1 do
                 args.[i] <- 
                     match args.[i] with
-                    | :? string as s -> s.Replace(' ', '+') :> obj
-                    | x -> x
+                    | :? string as s -> s.Replace(' ', '+')
+                    | :? Color as c ->
+                        if c.A = 255uy then
+                            String.Format("{0:x2}{1:x2}{2:x2}", c.R, c.G, c.B)
+                        else String.Format("{0:x2}{1:x2}{2:x2}{3:x2}", c.R, c.G, c.B, c.A)
+                    | :? Axis as axis ->
+                        match axis with
+                        | Axis.X -> "x"
+                        | Axis.Y -> "y"
+                        | Axis.Top -> "t"
+                        | Axis.Right -> "r"
+                        | _ -> raise(new ArgumentException())
+                    | :? LineChartMode as mode ->
+                        match mode with
+                        | LineChartMode.Default -> "lc"
+                        | LineChartMode.SparkLines -> "ls"
+                        | LineChartMode.XY -> "lxy"
+                        | _ -> raise(new ArgumentException())
+                    | x -> x.ToString()
+                    |> (fun x -> x :> obj)
         writer.Write(format, args) |> ignore
 
 type LineChart = {
@@ -84,23 +109,13 @@ type LineChart = {
     Mode : LineChartMode 
     DataEncoding : IChartDataEncoding 
     LineStyles : LineStyle seq } with
+    
     override x.ToString() =
-        let axisToString = function
-            | X -> "x"
-            | Y -> "y"
-            | Top -> "t"
-            | Left -> "r"
-
-        let modeString = function
-            | Default -> "lc"
-            | SparkLines -> "ls"
-            | XY -> "lxy"
-
         use s = new StringWriter()
         let result = GoogleChartWriter(s) 
                
         result.Write(GoogleChartApi.BaseUrl)
-        result.Write("?cht={0}", modeString x.Mode)
+        result.Write("?cht={0}", x.Mode)
 
         result.Write("&chtt={0}", x.Title)
 
@@ -117,11 +132,6 @@ type LineChart = {
             |> Seq.iter (fun (sep, x) ->
                 result.Write(sep:string) |> ignore
                 appendF x)
-
-        let hex (c:Color) = 
-            if c.A = 255uy then
-                String.Format("{0:x2}{1:x2}{2:x2}", c.R, c.G, c.B)
-            else String.Format("{0:x2}{1:x2}{2:x2}{3:x2}", c.R, c.G, c.B, c.A)
 
         append <| Format.args("&chs={0}x{1}", x.Width, x.Height)
 
@@ -146,14 +156,14 @@ type LineChart = {
             else Some(FormatMultiple(Format.args("{0}", n), axis.Positions |> Seq.map (fun x -> Format.args(",{0}", x)))))
         |>  appendFormat "&chxp=" "|"
 
-        x.Axes |> Seq.map (fun x -> Format.single((axisToString x.Axis)))
+        x.Axes |> Seq.map (fun x -> Format.single("{0}", x.Axis))
         |> appendFormat "&chxt=" ","
 
         x.Markers
         |> Seq.map (function
-            | Circle(color, series, whichPoints, size) -> Format.single("o,{0},{1},{2},{3}", hex color, series, whichPoints, size)
-            | FillToBottom(color, series) -> Format.single("B,{0},{1},0,0", hex color, series)
-            | FillBetween(color, startSeries, endSeries) -> Format.single("b,{0},{1},{2},0", hex color, startSeries, endSeries)) 
+            | Circle(color, series, whichPoints, size) -> Format.single("o,{0},{1},{2},{3}", color, series, whichPoints, size)
+            | FillToBottom(color, series) -> Format.single("B,{0},{1},0,0", color, series)
+            | FillBetween(color, startSeries, endSeries) -> Format.single("b,{0},{1},{2},0", color, startSeries, endSeries)) 
         |> appendFormat "&chm=" "|"
 
         x.Series 
@@ -163,7 +173,7 @@ type LineChart = {
         x.Series
         |> Seq.choose (fun series -> 
             if series.Color = Color.Transparent then None
-            else Some(Format.single(hex series.Color)))
+            else Some(Format.single("{0}", series.Color)))
         |> appendFormat "&chco=" ","
 
         x.Series 

@@ -21,9 +21,10 @@ namespace CardWall.Controllers
             var maxValue = encoding.MaxValue;
             
             var maxPoints = burndown.Data.Max(item => item.PointsRemaining);
-            var yAxis = new ChartAxis(Axis.Y, new Tuple<int, int>(0, maxPoints + 10), new string[0], new int[0]);
+            var chartMax = (int)Math.Round(maxPoints * 1.1);
+            var yAxis = new ChartAxis(Axis.Y, new Tuple<int, int>(0, chartMax), new string[0], new int[0]);
             var ys = new ChartSeries("", Color.Transparent, 
-                burndown.Data.Select(item => item.PointsRemaining).Scale(0, maxPoints + 10, 0, maxValue));
+                burndown.Data.Select(item => item.PointsRemaining).Scale(0, chartMax, 0, maxValue));
 
             var xAxis = new ChartAxis(Axis.X, new Tuple<int, int>(0, 1), new[]{ startDate.ToShortDateString(), endDate.ToShortDateString() }, new[]{0, 1});
             var x = new ChartSeries("Points Remaining", burndownColor, 
