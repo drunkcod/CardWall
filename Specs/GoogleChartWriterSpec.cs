@@ -1,31 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Cone;
+﻿using System.Drawing;
 using System.IO;
-using System.Drawing;
+using Cone;
 
 namespace CardWall.Specs
 {
     [Describe(typeof(GoogleChartWriter))]
     public class GoogleChartWriterSpec
     {
-        string Write(object arg) {
-            var result = new StringWriter();
-            var writer = new GoogleChartWriter(result);
-
-            writer.Write("{0}", arg);
-            return result.ToString();
+        string Format(object arg) {
+            var writer = new GoogleChartWriter(new StringWriter());
+            return writer.Format(arg);
         }
 
         [DisplayAs("replace ' ' with '+'")]
         public void replace_space_with_plus() {
-            Verify.That(() => Write("Hello World!") == "Hello+World!");
+            Verify.That(() => Format("Hello World!") == "Hello+World!");
         }
 
         public void RGB_color_as_hex() {
-            Verify.That(() => Write(Color.FromArgb(1, 2, 128)) == "010280");
+            Verify.That(() => Format(Color.FromArgb(1, 2, 128)) == "010280");
         }
 
         [Row(Axis.X, "x")
@@ -33,14 +26,34 @@ namespace CardWall.Specs
         ,Row(Axis.Top, "t")
         ,Row(Axis.Right, "r")]
         public void axis_format(Axis axis, string expected) {
-            Verify.That(() => Write(axis) == expected);
+            Verify.That(() => Format(axis) == expected);
         }
 
         [Row(LineChartMode.Default, "lc")
         ,Row(LineChartMode.SparkLines, "ls")
         ,Row(LineChartMode.XY, "lxy")]
         public void line_chart_mode(LineChartMode mode, string expected) {
-            Verify.That(() => Write(mode) == expected);
+            Verify.That(() => Format(mode) == expected);
+        }
+
+        public void LineStyle_Filled() {
+            Verify.That(() => Format(LineStyle.NewFilled(3)) == "3");
+        }
+
+        public void LineStyle_Dashed() {
+            Verify.That(() => Format(LineStyle.NewDashed(1, 2, 3)) == "1,2,3");
+        }
+
+        public void ChartMarker_Circle() {
+            Verify.That(() => Format(ChartMarker.NewCircle(Color.Red, 1, 2, 3)) == "o,ff0000,1,2,3"); 
+        }
+
+        public void ChartMarker_FillToBottom() {
+            Verify.That(() => Format(ChartMarker.NewFillToBottom(Color.Red, 1)) == "B,ff0000,1,0,0"); 
+        }
+
+        public void ChartMarker_FillBetween() {
+            Verify.That(() => Format(ChartMarker.NewFillBetween(Color.Red, 1, 2)) == "b,ff0000,1,2,0"); 
         }
     }
 }
