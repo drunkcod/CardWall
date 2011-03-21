@@ -14,6 +14,7 @@
     <AssemblyName>CardWall.Site</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <MvcBuildViews>false</MvcBuildViews>
+    <UseIISExpress>false</UseIISExpress>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -93,6 +94,7 @@
     <Content Include="Content\PivotalTracker\feature.png" />
     <Content Include="Content\Style.css" />
     <Content Include="Global.asax" />
+    <Content Include="TeamSouthBurndown.txt" />
     <Content Include="Views\Badges\Index.aspx" />
     <Content Include="Views\Charts\Index.aspx" />
     <Content Include="Views\Projects\CurrentIteration.aspx" />
