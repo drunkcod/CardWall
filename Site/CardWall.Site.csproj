@@ -80,6 +80,7 @@
     <Compile Include="Models\CardTask.cs" />
     <Compile Include="Models\CardView.cs" />
     <Compile Include="Models\CardViewFactory.cs" />
+    <Compile Include="Models\ChartView.cs" />
     <Compile Include="Models\DefaultBadgeBuilder.cs" />
     <Compile Include="Models\IBuilder.cs" />
     <Compile Include="Models\IterationView.cs" />

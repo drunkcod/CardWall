@@ -14,7 +14,7 @@ type IChartDataEncoding =
 
 type GoogleExtendedEncoding() =
     [<Literal>] 
-    let Alphabet = "ABCDEFGHIJKLMNOPQSRTUVWXYZabcdefghijklmonpqrstuvwxyz0123456789.-"
+    let Alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmonpqrstuvwxyz0123456789.-"
     
     member x.MaxValue = 4095
 
