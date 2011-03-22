@@ -94,6 +94,8 @@
     <Content Include="Content\PivotalTracker\chore.png" />
     <Content Include="Content\PivotalTracker\feature.png" />
     <Content Include="Content\Style.css" />
+    <Content Include="TeamNorthBurndown.txt" />
+    <Content Include="TeamIncrediblesBurndown.txt" />
     <Content Include="Global.asax" />
     <Content Include="TeamSouthBurndown.txt" />
     <Content Include="Views\Badges\Index.aspx" />

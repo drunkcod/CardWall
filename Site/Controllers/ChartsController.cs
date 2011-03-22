@@ -8,26 +8,22 @@ using System.IO;
 
 namespace CardWall.Controllers
 {
+    class BurndownChartConfiguration 
+    {
+        public string Name;
+        public string Label;
+        public int Project;
+        public string HistoricalDataPath;
+    }
+
     public class ChartsController : Controller
     {
         public ActionResult Index(string team) {
             var burndownColor = Color.SteelBlue;
 
-            var title = string.Empty;
-            switch(team) {
-                case "team north":
-                    title = "Team North";
-                    break;
-                case "incredible":
-                    title = "Team Incredibles";
-                    break;
-                default: 
-                    team = "team south";
-                    title = "Team South";
-                    break;
-            }
-
-            var burndown = GetSouthBurndownData(team);
+            var configuration = GetConfiguration(team);
+            
+            var burndown = GetSouthBurndownData(configuration.Project, configuration.Label, configuration.HistoricalDataPath);
             var startDate = burndown.Min(item => item.Date);
             var endDate = new DateTime(2011, 6, 1);
 
@@ -53,29 +49,54 @@ namespace CardWall.Controllers
                 ChartMarker.NewCircle(burndownColor, 0, -1, 8),
                 ChartMarker.NewCircle(Color.White, 0, -1, 4)
             }, LineChartMode.XY, encoding, new[]{ LineStyle.Default, LineStyle.NewDashed(2, 2, 4) });
-            return View(new ChartView { Name = title, DisplayMarkup = "<img src='" + chart.ToString() + "'/>" });
+            return View(new ChartView { Name = configuration.Name, DisplayMarkup = "<img src='" + chart.ToString() + "'/>" });
         }
 
-        BurndownData GetSouthBurndownData(string label) 
+        BurndownData GetSouthBurndownData(int project, string label, string historicalDataPath) 
         {
             var tracker = new PivotalTracker(Environment.GetEnvironmentVariable("TrackerToken", EnvironmentVariableTarget.Machine));
             var stories = 
-                tracker.Stories(173053).Result
+                tracker.Stories(project).Result
                 .Where(item => item.Labels.Contains(label, StringComparer.InvariantCultureIgnoreCase))
                 .Where(item => item.CurrentState != PivotalStoryState.Accepted);
 
             var pointsRemaining = stories.Sum(item => Math.Max(0, item.Estimate ?? 0)); 
 
-            return new BurndownData(LoadBurndownData(Server.MapPath("TeamSouthBurndown.txt"))){
+            return new BurndownData(LoadBurndownData(Server.MapPath(historicalDataPath))){
                 { DateTime.Today, pointsRemaining }
             };
+        }
+
+        BurndownChartConfiguration GetConfiguration(string team) {
+            switch(team) {
+                case "team north":
+                    return new BurndownChartConfiguration {
+                        Name = "Team North",
+                        Project = 173053,
+                        Label = team,
+                        HistoricalDataPath = "TeamNorthBurndown.txt"
+                    };
+                case "incredible":
+                    return new BurndownChartConfiguration {
+                        Name = "Team Incredibles",
+                        Project = 173053,
+                        Label = team,
+                        HistoricalDataPath = "TeamIncrediblesBurndown.txt"
+                    };
+                default:
+                    return new BurndownChartConfiguration {
+                        Name = "Team South",
+                        Project = 173053,
+                        Label = "team south",
+                        HistoricalDataPath = "TeamSouthBurndown.txt"
+                    };
+            }
         }
 
         IEnumerable<BurndownDataPoint> LoadBurndownData(string path) {
             using(var input = new StreamReader(System.IO.File.OpenRead(path))) {
                 for(string line; (line = input.ReadLine()) != null;) {
-                    var parts = line.Split(';');
-                    yield return new BurndownDataPoint(DateTime.Parse(parts[0]), int.Parse(parts[1]));
+                    yield return BurndownDataPoint.Parse(line);
                 }                    
             }
         }
