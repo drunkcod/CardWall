@@ -50,8 +50,13 @@
     <Compile Include="GoogleChartWriterSpec.cs" />
     <Compile Include="PivotalStorySpec.cs" />
     <Compile Include="PivotalTaskSpec.cs" />
+    <Compile Include="Site\Models\BurndownDataPointSpec.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Site\CardWall.Site.csproj">
+      <Project>{D5ED8D7F-614E-4E8E-9073-3D5AAAAD58F7}</Project>
+      <Name>CardWall.Site</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Source\CardWall.Core.fsproj">
       <Project>{DEC7E915-245A-4F62-8C70-A4582ADCD25C}</Project>
       <Name>CardWall.Core</Name>
