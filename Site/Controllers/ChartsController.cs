@@ -52,7 +52,7 @@ namespace CardWall.Controllers
             var chart = new LineChart(string.Format("{0} points remaining", burndown.PointsRemaining), 800, 300, new []{ xAxis, yAxis }, new []{ x, ys, xBurnLine, yBurnLine}, new []{
                 ChartMarker.NewCircle(burndownColor, 0, -1, 8),
                 ChartMarker.NewCircle(Color.White, 0, -1, 4)
-            }, LineChartMode.XY, encoding, new[]{ LineStyle.Default, LineStyle.NewDashed(2, 2, 4) });
+            }, ChartMode.XYLine, encoding, new[]{ LineStyle.Default, LineStyle.NewDashed(2, 2, 4) });
             return View(new ChartView { Name = title, DisplayMarkup = "<img src='" + chart.ToString() + "'/>" });
         }
 

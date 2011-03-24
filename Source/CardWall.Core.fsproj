@@ -43,6 +43,7 @@
   <ItemGroup>
     <Compile Include="Xml.fs" />
     <Compile Include="XPath.fs" />
+    <Compile Include="PivotalStoryType.fs" />
     <Compile Include="PivotalParse.fs" />
     <Compile Include="PivotalTask.fs" />
     <Compile Include="PivotalStory.fs" />

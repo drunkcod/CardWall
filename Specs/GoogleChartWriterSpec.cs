@@ -29,10 +29,11 @@ namespace CardWall.Specs
             Verify.That(() => Format(axis) == expected);
         }
 
-        [Row(LineChartMode.Default, "lc")
-        ,Row(LineChartMode.SparkLines, "ls")
-        ,Row(LineChartMode.XY, "lxy")]
-        public void line_chart_mode(LineChartMode mode, string expected) {
+        [Row(ChartMode.Line, "lc")
+        ,Row(ChartMode.SparkLines, "ls")
+        ,Row(ChartMode.XYLine, "lxy")
+        ,Row(ChartMode.StackedBars, "bvs")]
+        public void line_chart_mode(ChartMode mode, string expected) {
             Verify.That(() => Format(mode) == expected);
         }
 

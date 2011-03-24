@@ -59,10 +59,11 @@ type LineStyle =
     with
         static member Default = Filled(1)
 
-type LineChartMode = 
-    | Default = 1 
+type ChartMode = 
+    | Line = 1 
     | SparkLines = 2
-    | XY = 3
+    | XYLine = 3
+    | StackedBars = 4
 
 type Format =
     | FormatSingle of string * obj[]
@@ -92,11 +93,12 @@ type GoogleChartWriter(writer:TextWriter) =
             | Axis.Top -> "t"
             | Axis.Right -> "r"
             | _ -> raise(new ArgumentException())
-        | :? LineChartMode as mode ->
+        | :? ChartMode as mode ->
             match mode with
-            | LineChartMode.Default -> "lc"
-            | LineChartMode.SparkLines -> "ls"
-            | LineChartMode.XY -> "lxy"
+            | ChartMode.Line -> "lc"
+            | ChartMode.SparkLines -> "ls"
+            | ChartMode.XYLine -> "lxy"
+            | ChartMode.StackedBars -> "bvs"
             | _ -> raise(new ArgumentException())
         | :? LineStyle as style ->
             match style with
@@ -109,14 +111,14 @@ type GoogleChartWriter(writer:TextWriter) =
             | FillBetween(color, startSeries, endSeries) -> String.Format("b,{0},{1},{2},0", this.Format color, startSeries, endSeries) 
         | x -> x.ToString()
 
-type LineChart = {
+type Chart = {
     Title : string
     Width : int
     Height : int 
-    Axes : ChartAxis seq 
+    Axes : ChartAxis seq
     Series : ChartSeries seq 
     Markers : ChartMarker seq 
-    Mode : LineChartMode 
+    Mode : ChartMode 
     DataEncoding : IChartDataEncoding 
     LineStyles : LineStyle seq } with
     

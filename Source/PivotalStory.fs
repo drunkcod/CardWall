@@ -5,25 +5,11 @@ open System.Collections.Generic
 open System.Xml
 open System.Xml.Serialization
 
-type PivotalStoryType = 
-    | Unknown = 0
-    | Bug = 1
-    | Chore = 2
-    | Feature = 3
-    | Release = 4
-
-type PivotalStoryState =
-    | Unknown = 0
-    | Unscheduled = 1
-    | Unstarted = 2
-    | Started = 3
-    | Finished = 4
-    | Delivered = 5
-    | Accepted = 6
-
 type PivotalStory() =
     [<DefaultValue>] val mutable private id : int
     [<DefaultValue>] val mutable private projectId : int
+    let mutable createdAt = DateTime.MinValue
+    let mutable acceptedAt = DateTime.MinValue
     let mutable storyType = PivotalStoryType.Unknown
     let mutable  estimate = Nullable<int>()
     let mutable  state = PivotalStoryState.Unknown
@@ -35,6 +21,8 @@ type PivotalStory() =
 
     member this.Id = this.id
     member this.ProjectId = this.projectId
+    member this.CreatedAt = createdAt
+    member this.AcceptedAt = acceptedAt
     member this.Type = storyType
     member this.Estimate = estimate
     member this.CurrentState = state
@@ -44,24 +32,6 @@ type PivotalStory() =
     member this.Labels = labels
     member this.Tasks = tasks
 
-    static member private ParseStoryType =
-        function
-        | "bug" -> PivotalStoryType.Bug
-        | "chore" -> PivotalStoryType.Chore
-        | "feature" -> PivotalStoryType.Feature
-        | "release" -> PivotalStoryType.Release
-        | _ -> PivotalStoryType.Unknown
-
-    static member private ParseStoryState =
-        function
-        | "unscheduled" -> PivotalStoryState.Unscheduled
-        | "unstarted" -> PivotalStoryState.Unstarted
-        | "started" -> PivotalStoryState.Started
-        | "finished" -> PivotalStoryState.Finished
-        | "delivered" -> PivotalStoryState.Delivered
-        | "accepted" -> PivotalStoryState.Accepted
-        | _ -> PivotalStoryState.Unknown
-
     interface IXmlSerializable with
         member this.GetSchema() = null
         member this.ReadXml reader = 
@@ -70,9 +40,11 @@ type PivotalStory() =
                 match reader.Name with
                 | "id" -> this.id <- reader.ReadElementContentAsInt()
                 | "project_id" -> this.projectId <- reader.ReadElementContentAsInt()
-                | "story_type" -> storyType <- PivotalStory.ParseStoryType(reader.ReadElementContentAsString())
+                | "created_at" -> createdAt <- PivotalParse.dateTime(reader.ReadElementContentAsString())
+                | "accepted_at" -> acceptedAt <- PivotalParse.dateTime(reader.ReadElementContentAsString())
+                | "story_type" -> storyType <- PivotalParse.storyType(reader.ReadElementContentAsString())
                 | "estimate" -> estimate <- Nullable(reader.ReadElementContentAsInt())
-                | "current_state" -> state <- PivotalStory.ParseStoryState(reader.ReadElementContentAsString())
+                | "current_state" -> state <- PivotalParse.storyState(reader.ReadElementContentAsString())
                 | "url" -> url <- reader.ReadElementContentAsString()
                 | "name" -> name <- reader.ReadElementContentAsString()
                 | "owned_by" -> ownedBy <- reader.ReadElementContentAsString()
