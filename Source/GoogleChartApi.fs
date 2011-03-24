@@ -77,9 +77,9 @@ type GoogleChartWriter(writer:TextWriter) =
         if args <> null then
             for i = 0 to args.Length - 1 do
                 args.[i] <- this.Format args.[i] :> obj
-        writer.Write(format, args) |> ignore
+        writer.Write(this.Format(format), args) |> ignore
 
-    member this.Format(arg:obj) = 
+    member this.Format(arg:obj) =
         match arg with
         | :? string as s -> s.Replace(' ', '+')
         | :? Color as c ->
