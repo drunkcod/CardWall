@@ -37,21 +37,26 @@ type Axis =
     | Top = 2
     | Right = 3
 
+type ChartSeries = {
+    Name : string 
+    Color : Color
+    Data : int seq }
+
+type MarkerPoints =
+    | All
+    | StartAt of int
+
 type ChartMarker =
-    | Circle of Color * int * int * int
+    | Circle of Color * int * MarkerPoints * int
     | FillToBottom of Color * int
     | FillBetween of Color * int * int
+    | LineMarker of Color * int * MarkerPoints
 
 type ChartAxis = { 
     Axis: Axis
     Range : int * int
     Labels : string seq 
     Positions : int seq }
-
-type ChartSeries = {
-    Name : string 
-    Color : Color
-    Data : int seq }
 
 type LineStyle =
     | Filled of int
@@ -109,6 +114,11 @@ type GoogleChartWriter(writer:TextWriter) =
             | Circle(color, series, whichPoints, size) -> String.Format("o,{0},{1},{2},{3}", this.Format color, series, whichPoints, size)
             | FillToBottom(color, series) -> String.Format("B,{0},{1},0,0", this.Format color, series)
             | FillBetween(color, startSeries, endSeries) -> String.Format("b,{0},{1},{2},0", this.Format color, startSeries, endSeries) 
+            | LineMarker(color, series, points) -> String.Format("D,{0},{1},{2},1", this.Format color, series, this.Format points)
+        | :? MarkerPoints as points ->
+            match points with
+            | All -> "-1"
+            | StartAt(n) -> String.Format("{0}::", n)            
         | x -> x.ToString()
 
 type Chart = {
@@ -185,10 +195,12 @@ type Chart = {
         |> Seq.choose (fun series -> 
             if series.Color = Color.Transparent then None
             else Some(Format.single("{0}", series.Color)))
-        |> appendFormat "&chco=" ","
+        |> appendFormat "&chco=" ","      
+
+        let dataSeries = (x.Series |> Seq.length) - (x.Markers |> Seq.filter (function LineMarker(_) -> true | _ -> false) |> Seq.length)
 
         x.Series 
         |> Seq.map (fun series -> Format.single(x.DataEncoding.Encode(series.Data))) 
-        |> appendFormat "&chd=e:" ","
+        |> appendFormat (String.Format("&chd=e{0}:", dataSeries)) ","
            
         s.ToString()

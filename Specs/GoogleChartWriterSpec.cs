@@ -46,7 +46,7 @@ namespace CardWall.Specs
         }
 
         public void ChartMarker_Circle() {
-            Verify.That(() => Format(ChartMarker.NewCircle(Color.Red, 1, 2, 3)) == "o,ff0000,1,2,3"); 
+            Verify.That(() => Format(ChartMarker.NewCircle(Color.Red, 1, MarkerPoints.All, 3)) == "o,ff0000,1,-1,3"); 
         }
 
         public void ChartMarker_FillToBottom() {

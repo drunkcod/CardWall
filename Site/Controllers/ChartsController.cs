@@ -46,8 +46,8 @@ namespace CardWall.Controllers
             var yBurnLine = new ChartSeries("", Color.Transparent, new []{ maxValue, 0});
 
             var chart = new Chart(string.Format("{0} points remaining", burndown.PointsRemaining), 800, 300, new []{ xAxis, yAxis }, new []{ x, ys, xBurnLine, yBurnLine}, new []{
-                ChartMarker.NewCircle(burndownColor, 0, -1, 8),
-                ChartMarker.NewCircle(Color.White, 0, -1, 4)
+                ChartMarker.NewCircle(burndownColor, 0, MarkerPoints.All, 8),
+                ChartMarker.NewCircle(Color.White, 0, MarkerPoints.All, 4)
             }, ChartMode.XYLine, encoding, new[]{ LineStyle.Default, LineStyle.NewDashed(2, 2, 4) });
             return View(new ChartView { Name = configuration.Name, DisplayMarkup = "<img src='" + chart.ToString() + "'/>" });
         }
