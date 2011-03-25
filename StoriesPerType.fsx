@@ -36,8 +36,15 @@ let config =
     |> Seq.skip 1
     |> Seq.fold parseArg defaultConfig
 
+let getOrDefault d = 
+    function
+    | Some(x) -> x
+    | None -> d
+
+let date = config.Date |> getOrDefault (DateTime.Today.ToShortDateString())
+
 let snapshotPath date project = String.Format(@"R:\PivotalSnapshots\{0}\{1}.xml", date, project)
-let xml = XPathDocument(snapshotPath (Option.get config.Date) config.ProjectId)
+let xml = XPathDocument(snapshotPath date config.ProjectId)
 
 let stories = 
     xml.CreateNavigator()
@@ -53,11 +60,7 @@ let lookup =
     |> Seq.filter columnFilter
     |> Seq.groupBy (fun x -> x.Type))
 
-let getOrDefault d = 
-    function
-    | Some(x) -> x
-    | None -> d
-
+Console.Write("{0};", date)
 typeColumns
 |> Seq.map (fun x -> 
     match Map.tryFind x lookup with 
@@ -68,4 +71,5 @@ typeColumns
         let openCount = getOrZero <| counts.TryFind(false)
         (openCount, closedCount)
     | None -> (0, 0))
-|> Seq.iter (fun (o, c)-> Console.Write("{0} {1} ", o, c))
+|> Seq.iter (fun (o, c)-> Console.Write("{0};{1};", o, c))
+Console.WriteLine()

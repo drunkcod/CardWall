@@ -46,11 +46,15 @@ type MarkerPoints =
     | All
     | StartAt of int
 
+type LineWidth =
+    | Default
+    | LineWidth of int
+
 type ChartMarker =
     | Circle of Color * int * MarkerPoints * int
     | FillToBottom of Color * int
     | FillBetween of Color * int * int
-    | LineMarker of Color * int * MarkerPoints
+    | LineMarker of Color * int * MarkerPoints * LineWidth
 
 type ChartAxis = { 
     Axis: Axis
@@ -109,12 +113,16 @@ type GoogleChartWriter(writer:TextWriter) =
             match style with
             | Filled(width) -> width.ToString()
             | Dashed(width, dash, space) -> String.Format("{0},{1},{2}", width, dash, space)
+        | :? LineWidth as width ->
+            match width with 
+            | Default -> "1"
+            | LineWidth(x) -> x.ToString()
         | :? ChartMarker as marker ->
             match marker with
             | Circle(color, series, whichPoints, size) -> String.Format("o,{0},{1},{2},{3}", this.Format color, series, whichPoints, size)
             | FillToBottom(color, series) -> String.Format("B,{0},{1},0,0", this.Format color, series)
             | FillBetween(color, startSeries, endSeries) -> String.Format("b,{0},{1},{2},0", this.Format color, startSeries, endSeries) 
-            | LineMarker(color, series, points) -> String.Format("D,{0},{1},{2},1", this.Format color, series, this.Format points)
+            | LineMarker(color, series, points, width) -> String.Format("D,{0},{1},{2},{3}", this.Format color, series, this.Format points, this.Format width)
         | :? MarkerPoints as points ->
             match points with
             | All -> "-1"
