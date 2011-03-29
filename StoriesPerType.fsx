@@ -6,49 +6,42 @@ open System.Text.RegularExpressions
 open System.Xml.XPath
 open CardWall
 
-(*
-let tracker = PivotalTracker(Environment.GetEnvironmentVariable("TrackerToken", EnvironmentVariableTarget.Machine))
-tracker.Stories(projectId).Result
-*)
-
 type Config = {
     ProjectId : int
     Date : string option
 }
 
-let defaultConfig = { 
-    ProjectId = 173053
-    Date = None 
-}
+let (|Match|NonMatch|) (m:Match) = if m.Success then Match(m) else NonMatch
 
-let parseArg config arg =
-    let r = Regex("^--([^\s]+?)=(.+)$")
-    let m = r.Match(arg)
-    if m.Success = false then
-        raise(new ArgumentException(arg))
-    else 
-        match m.Groups.[1].Value with
-        | "date" -> { config with Date = Some(m.Groups.[2].Value) }
+let parseArg =
+    let r = Regex("^--(?<key>[^\s]+?)=(?<value>.+)$")
+    let key = r.GroupNumberFromName("key")
+    let value = r.GroupNumberFromName("value")
+    fun config arg ->
+      match r.Match(arg) with
+      | Match(m) ->
+        match m.Groups.[key].Value with
+        | "date" -> { config with Date = Some(m.Groups.[value].Value) }
+        | "project" -> { config with ProjectId = int(m.Groups.[value].Value) }
         | _ as x -> raise(new ArgumentException(x))
+      | NonMatch -> raise(ArgumentException(arg))
 
 let config = 
     fsi.CommandLineArgs
     |> Seq.skip 1
-    |> Seq.fold parseArg defaultConfig
+    |> Seq.fold parseArg { ProjectId = 173053; Date = None }
 
-let getOrDefault d = 
-    function
-    | Some(x) -> x
-    | None -> d
-
-let date = config.Date |> getOrDefault (DateTime.Today.ToShortDateString())
-
-let snapshotPath date project = String.Format(@"R:\PivotalSnapshots\{0}\{1}.xml", date, project)
-let xml = XPathDocument(snapshotPath date config.ProjectId)
-
-let stories = 
-    xml.CreateNavigator()
-    |> XPath.map "//story" (fun x -> x.ReadSubtree() |> Xml.read (PivotalStory()))
+let date, stories =
+  match config.Date with
+  | Some(date) ->
+      let snapshotPath date project = String.Format(@"R:\PivotalSnapshots\{0}\{1}.xml", date, project)
+      let xml = XPathDocument(snapshotPath date config.ProjectId)
+      date, xml.CreateNavigator()
+      |> XPath.map "//story" (fun x -> x.ReadSubtree() |> Xml.read (PivotalStory()))
+  | None ->
+    let trackerToken = Environment.GetEnvironmentVariable("TrackerToken", EnvironmentVariableTarget.Machine)
+    let tracker = PivotalTracker(trackerToken)
+    DateTime.Today.ToShortDateString(), tracker.Stories(config.ProjectId).Result
 
 let typeColumns = [PivotalStoryType.Bug; PivotalStoryType.Chore; PivotalStoryType.Feature]
 let columnFilter =
@@ -66,7 +59,7 @@ typeColumns
     match Map.tryFind x lookup with 
     | Some(x) -> 
         let counts = Map(x |> Seq.countBy (fun x -> x.CurrentState = PivotalStoryState.Accepted))
-        let getOrZero = getOrDefault 0
+        let getOrZero = function None -> 0 | Some(x) -> x
         let closedCount = getOrZero <| counts.TryFind(true) 
         let openCount = getOrZero <| counts.TryFind(false)
         (openCount, closedCount)
