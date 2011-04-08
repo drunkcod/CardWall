@@ -17,15 +17,14 @@ let date, stories =
   | Some(date) ->
       let snapshotPath date project = String.Format(@"R:\PivotalSnapshots\{0}\{1}.xml", date, project)
       let xml = XPathDocument(snapshotPath date config.ProjectId)
-      date, xml.CreateNavigator()
+      DateTime.Parse(date), xml.CreateNavigator()
       |> XPath.map "//story" (fun x -> x.ReadSubtree() |> Xml.read (PivotalStory()))
       |> Seq.cache
 
   | None ->
     let trackerToken = Environment.GetEnvironmentVariable("TrackerToken", EnvironmentVariableTarget.Machine)
     let tracker = PivotalTracker(trackerToken)
-    DateTime.Today.ToShortDateString(), tracker.Stories(config.ProjectId).Result
-
+    DateTime.Today, tracker.Stories(config.ProjectId).Result |> Seq.cache
 
 let teamStories =
     stories
@@ -42,4 +41,4 @@ let pointsBurned =
     |> Seq.filter (fun x -> x.CurrentState = PivotalStoryState.Accepted)
     |> Seq.sumBy (fun x -> Math.Max(0, x.Estimate.Value))
 
-Console.WriteLine("{0};{1};{2}", date, pointsRemaining, pointsBurned)
+Console.WriteLine(BurndownDataPoint(date, pointsRemaining, pointsBurned))
