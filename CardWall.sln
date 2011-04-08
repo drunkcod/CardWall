@@ -10,8 +10,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{93608760-542D-4D80-AB40-6B29598B0D2C}"
 	ProjectSection(SolutionItems) = preProject
 		BugAge.fsx = BugAge.fsx
+		BurndownData.fsx = BurndownData.fsx
 		ChartDataConfiguration.fsx = ChartDataConfiguration.fsx
-		SouthBurndown.fsx = SouthBurndown.fsx
 		StoriesPerType.fsx = StoriesPerType.fsx
 		StoryTypeBreakdownChart.fsx = StoryTypeBreakdownChart.fsx
 	EndProjectSection
