@@ -7,6 +7,7 @@ open System.Xml.XPath
 type Configuration = {
     ProjectId : int
     Date : string option
+    Team : string
 }
 
 module Config = 
@@ -22,10 +23,11 @@ module Config =
             match m.Groups.[key].Value with
             | "date" -> { config with Date = Some(m.Groups.[value].Value) }
             | "project" -> { config with ProjectId = int(m.Groups.[value].Value) }
+            | "team" -> { config with Team = m.Groups.[value].Value }
             | _ as x -> raise(new ArgumentException(x))
           | NonMatch -> raise(ArgumentException(arg))
 
     let load() = 
         fsi.CommandLineArgs
         |> Seq.skip 1
-        |> Seq.fold parseArg { ProjectId = 173053; Date = None }
+        |> Seq.fold parseArg { ProjectId = 173053; Date = None; Team = String.Empty }

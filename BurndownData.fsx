@@ -28,7 +28,7 @@ let date, stories =
 
 let teamStories =
     stories
-    |> Seq.filter (fun x -> x.Labels |> Seq.exists (fun x -> x.ToLowerInvariant() = "team south"))
+    |> Seq.filter (fun x -> x.Labels |> Seq.exists (fun x -> x.ToLowerInvariant() = config.Team))
     |> Seq.filter (fun x -> x.Estimate.HasValue)
 
 let pointsRemaining = 

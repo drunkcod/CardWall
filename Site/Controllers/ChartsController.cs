@@ -85,11 +85,11 @@ namespace CardWall.Controllers
 
         BurndownChartConfiguration GetConfiguration(string team) {
             switch(team) {
-                case "team north":
+                case "north":                    
                     return new BurndownChartConfiguration {
                         Name = "Team North",
                         Project = 173053,
-                        Label = team,
+                        Label = "team north",
                         HistoricalDataPath = "TeamNorthBurndown.txt"
                     };
                 case "incredible":

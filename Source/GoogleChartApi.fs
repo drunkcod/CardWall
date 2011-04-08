@@ -28,7 +28,7 @@ type GoogleExtendedEncoding() =
 
     member x.Check value = 
         if value < 0 || value > x.MaxValue then
-            raise(new ArgumentOutOfRangeException(x.ToString()))
+            raise(Exception(value.ToString() + " was out of range!"))
         else value
 
 type Axis = 
