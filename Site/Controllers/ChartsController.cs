@@ -1,10 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Web.Mvc;
 using CardWall.Models;
-using System.Collections.Generic;
-using System.IO;
 
 namespace CardWall.Controllers
 {
@@ -20,6 +20,7 @@ namespace CardWall.Controllers
     {
         public ActionResult Index(string team) {
             var burndownColor = Color.SteelBlue;
+            var velocityColor = Color.YellowGreen;
 
             var configuration = GetConfiguration(team);
             
@@ -35,20 +36,30 @@ namespace CardWall.Controllers
             var maxPoints = burndown.Max(item => item.PointsRemaining);
             var chartMax = (int)Math.Round(maxPoints * 1.1);
             var yAxis = new ChartAxis(Axis.Y, new Tuple<int, int>(0, chartMax), new string[0], new int[0]);
-            var ys = new ChartSeries("", Color.Transparent, 
-                burndown.Select(item => item.PointsRemaining).Scale(0, chartMax, 0, maxValue));
+            
+            var pointsRemaining = new ChartSeries("", Color.Transparent, burndown.Select(item => item.PointsRemaining).Scale(0, chartMax, 0, maxValue));
+            var velocity = new ChartSeries("", Color.Transparent, burndown.Select(item => item.TotalPointsBurned).Scale(0, chartMax, 0, maxValue));
 
             var xAxis = new ChartAxis(Axis.X, new Tuple<int, int>(0, 1), new[]{ startDate.ToShortDateString(), endDate.ToShortDateString() }, new[]{0, 1});
             var xs = burndown.Select(item => (int)(item.Date - startDate).TotalDays).Scale(0, totalDays, 0, maxValue);
-            var x = new ChartSeries("Points Remaining", burndownColor, xs);
+
+            var pointsRemainingSeries = new ChartSeries("Points Remaining", burndownColor, xs);
+            var velocitySeries = new ChartSeries("Velocity", velocityColor, xs);
           
             var xBurnLine = new ChartSeries("", Color.FromArgb(128, Color.Firebrick), new []{ 0, maxValue });
             var yBurnLine = new ChartSeries("", Color.Transparent, new []{ maxValue, 0});
 
-            var chart = new Chart(string.Format("{0} points remaining", burndown.PointsRemaining), 800, 300, new []{ xAxis, yAxis }, new []{ x, ys, xBurnLine, yBurnLine}, new []{
+            var chart = new Chart(
+                string.Format("{0} points remaining", burndown.PointsRemaining), 800, 300,
+                new []{ xAxis, yAxis }, 
+                new [] { 
+                    pointsRemainingSeries, pointsRemaining,
+                    velocitySeries, velocity,
+                    xBurnLine, yBurnLine
+                }, new []{
                 ChartMarker.NewCircle(burndownColor, 0, MarkerPoints.All, 8),
                 ChartMarker.NewCircle(Color.White, 0, MarkerPoints.All, 4)
-            }, ChartMode.XYLine, encoding, new[]{ LineStyle.Default, LineStyle.NewDashed(2, 2, 4) });
+            }, ChartMode.XYLine, encoding, new[]{ LineStyle.Default, LineStyle.Default, LineStyle.NewDashed(2, 2, 4)});
             return View(new ChartView { Name = configuration.Name, DisplayMarkup = "<img src='" + chart.ToString() + "'/>" });
         }
 
@@ -58,12 +69,13 @@ namespace CardWall.Controllers
             var stories = 
                 tracker.Stories(project).Result
                 .Where(item => item.Labels.Contains(label, StringComparer.InvariantCultureIgnoreCase))
-                .Where(item => item.CurrentState != PivotalStoryState.Accepted);
-
-            var pointsRemaining = stories.Sum(item => Math.Max(0, item.Estimate ?? 0)); 
+                .ToArray();
+                
+            var pointsRemaining = stories.Where(item => item.CurrentState != PivotalStoryState.Accepted).Sum(item => Math.Max(0, item.Estimate ?? 0)); 
+            var totalPointsBurned = stories.Where(item => item.CurrentState == PivotalStoryState.Accepted).Sum(item => Math.Max(0, item.Estimate ?? 0)); 
 
             return new BurndownData(LoadBurndownData(Server.MapPath(historicalDataPath))){
-                { DateTime.Today, pointsRemaining }
+                { DateTime.Today, pointsRemaining, totalPointsBurned }
             };
         }
 

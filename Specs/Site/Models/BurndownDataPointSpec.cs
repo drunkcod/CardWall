@@ -11,7 +11,7 @@ namespace CardWall.Specs.Site.Models
     public class BurndownDataPointSpec
     {
         public void parsing_roundtrip() {
-            var original = new BurndownDataPoint(new DateTime(1976, 8, 27), 42);
+            var original = new BurndownDataPoint(new DateTime(1976, 8, 27), 42, 13);
             var clone = BurndownDataPoint.Parse(original.ToString());
 
             Verify.That(() => clone.Date == original.Date);

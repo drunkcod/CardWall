@@ -119,7 +119,7 @@ type GoogleChartWriter(writer:TextWriter) =
             | LineWidth(x) -> x.ToString()
         | :? ChartMarker as marker ->
             match marker with
-            | Circle(color, series, whichPoints, size) -> String.Format("o,{0},{1},{2},{3}", this.Format color, series, whichPoints, size)
+            | Circle(color, series, whichPoints, size) -> String.Format("o,{0},{1},{2},{3}", this.Format color, series, this.Format whichPoints, size)
             | FillToBottom(color, series) -> String.Format("B,{0},{1},0,0", this.Format color, series)
             | FillBetween(color, startSeries, endSeries) -> String.Format("b,{0},{1},{2},0", this.Format color, startSeries, endSeries) 
             | LineMarker(color, series, points, width) -> String.Format("D,{0},{1},{2},{3}", this.Format color, series, this.Format points, this.Format width)

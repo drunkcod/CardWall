@@ -15,8 +15,8 @@ namespace CardWall.Models
 
         public int PointsRemaining { get { return dataPoints.Last().PointsRemaining; } }
 
-        public void Add(DateTime date, int pointsRemaining) {
-            dataPoints.Add(new BurndownDataPoint(date, pointsRemaining));
+        public void Add(DateTime date, int pointsRemaining, int totalPointsBurned) {
+            dataPoints.Add(new BurndownDataPoint(date, pointsRemaining, totalPointsBurned));
         }
 
         IEnumerator<BurndownDataPoint> IEnumerable<BurndownDataPoint>.GetEnumerator() {

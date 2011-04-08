@@ -75,7 +75,6 @@
     </Compile>
     <Compile Include="IEnumerableExtensions.cs" />
     <Compile Include="Models\BurndownData.cs" />
-    <Compile Include="Models\BurndownDataPoint.cs" />
     <Compile Include="Models\CardBadge.cs" />
     <Compile Include="Models\CardTask.cs" />
     <Compile Include="Models\CardView.cs" />
