@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Mvc;
 using CardWall.Models;
-using System.Configuration;
 
 namespace CardWall.Controllers
 {
@@ -12,7 +11,7 @@ namespace CardWall.Controllers
     {
         PivotalTracker tracker = new PivotalTracker(Environment.GetEnvironmentVariable("TrackerToken", EnvironmentVariableTarget.Machine));
 
-        public ActionResult CurrentIteration(int? id, string projects) {
+        public ActionResult CurrentIteration(int? id, string projects,string q) {
             var iteration = new IterationView {
                 { "unstarted", new LaneView { Name = "Unstarted" } },
                 { "started", new LaneView { Name = "Started" } },
@@ -27,22 +26,29 @@ namespace CardWall.Controllers
             if(!string.IsNullOrEmpty(projects))
                 foreach(var item in projects.Split(' '))
                     ids.Add(int.Parse(item));
-            AppendCurrentIteration(iteration, ids);
+            AppendCurrentIteration(iteration, ids, CreateCardFilter(q));
             return View(iteration);
         }
 
-        void AppendCurrentIteration(IterationView iteration, List<int> id) {
-            var tasks = new Task<List<CardView>>[id.Count];
-            for(var i = 0; i != id.Count; ++i) {
-                tasks[i] = CardsForCurrentIteration(id[i]);
+        Func<CardView, bool> CreateCardFilter(string q) {
+            if(string.IsNullOrEmpty(q))
+                return _ => true;
+            return x => x.Badges.Any(badge => badge.Name.Equals(q, StringComparison.InvariantCultureIgnoreCase));
+        }
+           
+
+        void AppendCurrentIteration(IterationView iteration, List<int> projects, Func<CardView, bool> cardFilter) {
+            var tasks = new Task<List<CardView>>[projects.Count];
+            for(var i = 0; i != projects.Count; ++i) {
+                tasks[i] = CardsForCurrentIteration(projects[i]);
             }
-            iteration.AddRange(tasks.SelectMany(x => x.Result), x => x.CurrentState);
+            iteration.AddRange(tasks.SelectMany(x => x.Result).Where(cardFilter), x => x.CurrentState);
         }
 
-        Task<List<CardView>> CardsForCurrentIteration(int id) {
-            var currentIteration = tracker.CurrentIteration(id);
+        Task<List<CardView>> CardsForCurrentIteration(int project) {
+            var currentIteration = tracker.CurrentIteration(project);
             var projectsLookup = tracker.Projects().ContinueWith(task => CreateLookup(task.Result));
-            var membersLookup = tracker.ProjectMembers(id).ContinueWith(task => CreateLookup(task.Result));
+            var membersLookup = tracker.ProjectMembers(project).ContinueWith(task => CreateLookup(task.Result));
             return Task.Factory.ContinueWhenAll(new Task[]{ currentIteration, projectsLookup, membersLookup }, _ => {
                 var cards = new CardViewFactory(projectsLookup.Result, membersLookup.Result, CreateBadgeBuilder());
                 cards.TaskCompleteUrl = Url.Content("~/Content/FamFamFam/tick.png");

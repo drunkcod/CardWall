@@ -51,18 +51,23 @@ namespace CardWall.Controllers
             var xBurnLine = new ChartSeries("", Color.FromArgb(128, Color.Firebrick), new []{ 0, maxValue });
             var yBurnLine = new ChartSeries("", Color.Transparent, new []{ maxValue, 0});
 
+            var xMeanVelocity = new ChartSeries("", Color.FromArgb(128, velocityColor), new []{ 0, maxValue });
+            var meanVelocity = (int)Math.Round(burndown.Average(item => item.Velocity * 1.0));
+            var yMeanVelocity = new ChartSeries("", Color.Transparent, new []{ meanVelocity, meanVelocity}.Scale(0, 25, 0, maxValue));
+
             var chart = new Chart(
-                string.Format("{0} points remaining. Velocity {1}", burndown.PointsRemaining, burndown.Velocity), 800, 300,
+                string.Format("{0} points remaining. Velocity {1}. {2} iterations remaining.", burndown.PointsRemaining, meanVelocity, burndown.PointsRemaining / meanVelocity), 800, 300,
                 new []{ xAxis, yAxis, velocityAxis }, 
                 new [] { 
                     pointsRemainingSeries, pointsRemaining,
                     velocitySeries, velocity,
                     scopeSeries, scope, 
-                    xBurnLine, yBurnLine
+                    xBurnLine, yBurnLine,
+                    xMeanVelocity, yMeanVelocity
                 }, new []{
                 ChartMarker.NewCircle(burndownColor, 0, MarkerPoints.All, 8),
                 ChartMarker.NewCircle(Color.White, 0, MarkerPoints.All, 4)
-            }, ChartMode.XYLine, encoding, new[]{ LineStyle.Default, LineStyle.Default, LineStyle.Default, LineStyle.NewDashed(2, 2, 4)});
+            }, ChartMode.XYLine, encoding, new[]{ LineStyle.Default, LineStyle.Default, LineStyle.Default, LineStyle.NewDashed(2, 2, 4), LineStyle.NewDashed(2, 2, 4)});
             return View(new ChartView { Name = configuration.Name, DisplayMarkup = "<img src='" + chart.ToString() + "'/>" });
         }
 
