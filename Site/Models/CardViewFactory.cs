@@ -27,7 +27,8 @@ namespace CardWall.Models
                 Owner = GetOwner(story),
                 AvatarUrl = GetAvatarUrl(story),
                 Url = story.Url,
-                ProjectName = GetProjectName(story)
+                ProjectName = GetProjectName(story),
+				Id = story.Id
             };
 
             CardBadge badge;
