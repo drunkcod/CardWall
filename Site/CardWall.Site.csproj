@@ -89,9 +89,22 @@
     <Compile Include="WebConfirugraionSectionHandler.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Content\FamFamFam\bullet_orange.png" />
+    <Content Include="Content\FamFamFam\bullet_star.png" />
+    <Content Include="Content\FamFamFam\flag_blue.png" />
+    <Content Include="Content\FamFamFam\flag_pink.png" />
+    <Content Include="Content\FamFamFam\flag_red.png" />
+    <Content Include="Content\FamFamFam\money.png" />
+    <Content Include="Content\FamFamFam\tick.png" />
+    <Content Include="Content\FamFamFam\user_female.png" />
     <Content Include="Content\PivotalTracker\bug.png" />
     <Content Include="Content\PivotalTracker\chore.png" />
     <Content Include="Content\PivotalTracker\feature.png" />
+    <Content Include="Content\Print\bug.png" />
+    <Content Include="Content\Print\chore.png" />
+    <Content Include="Content\Print\feature.png" />
+    <Content Include="Content\Scripts\jquery-1.5.2.min.js" />
+    <Content Include="Content\Scripts\jquery.tmpl.min.js" />
     <Content Include="Content\Style.css" />
     <Content Include="TeamNorthBurndown.txt" />
     <Content Include="TeamIncrediblesBurndown.txt" />

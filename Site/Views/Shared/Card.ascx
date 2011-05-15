@@ -7,7 +7,7 @@
     </div>
 </div>
 <%} %>
-<div class="<%=Model.Type%> card<%if(Model.Size.HasValue){%> size<%=Model.Size%><%} %>">
+<div class="<%=Model.Type%> card<%if(Model.Size.HasValue){%> size<%=Model.Size%><%} %>" id="<%=Model.Id%>" data-type="<%=Model.Type%>" data-size="<%=Model.Size%>">
     <h1><a href="<%=Model.Url%>" class="card-title" target="_blank"><%=Model.Title %></a></h1>
     <div class="card-project-name"><%=Model.ProjectName %></div>
     <div class='card-summary'><%=Model.Summary %></div>

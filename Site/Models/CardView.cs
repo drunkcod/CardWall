@@ -25,6 +25,7 @@ namespace CardWall.Models
         public string ProjectName;
         public int? Size;
         public DateTime Started;
+		public int Id;
 
         public void AddBadge(CardBadge item) { badges.Add(item); }
         public void AddTask(CardTask item){ tasks.Add(item); }
