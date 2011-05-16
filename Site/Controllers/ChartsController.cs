@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Web.Mvc;
@@ -12,6 +13,13 @@ namespace CardWall.Controllers
         public string Label;
         public int Project;
         public string HistoricalDataPath;
+    }
+
+    class XYSeries 
+    {
+        public ChartSeries X;
+        public ChartSeries Y;
+        public LineStyle Style = LineStyle.Default;
     }
 
     public class ChartsController : Controller
@@ -35,40 +43,75 @@ namespace CardWall.Controllers
             var maxPoints = burndown.Max(item => item.TotalPoints);
             var chartMax = (int)Math.Round(maxPoints * 1.1);
             var yAxis = new ChartAxis(Axis.Y, new Tuple<int, int>(0, chartMax), new string[0], new int[0]);
-            var velocityAxis = new ChartAxis(Axis.Right, new Tuple<int, int>(0, 20), new []{ "0", "5", "10", "15", "Velocity" }, new []{ 0, 5, 10, 15, 20 });
             
-            var pointsRemaining = new ChartSeries("", Color.Transparent, burndown.Select(item => item.PointsRemaining).Scale(0, chartMax, 0, maxValue));
-            var velocity = new ChartSeries("", Color.Transparent, burndown.Select(item => item.Velocity).Scale(0, 25, 0, maxValue));
-            var scope = new ChartSeries("", Color.Transparent, burndown.Select(item => item.TotalPoints).Scale(0, chartMax, 0, maxValue));
-
             var xAxis = new ChartAxis(Axis.X, new Tuple<int, int>(0, 1), new[]{ startDate.ToShortDateString(), endDate.ToShortDateString() }, new[]{0, 1});
             var xs = burndown.Select(item => (int)(item.Date - startDate).TotalDays).Scale(0, totalDays, 0, maxValue);
 
-            var pointsRemainingSeries = new ChartSeries("Points Remaining", burndownColor, xs);
-            var velocitySeries = new ChartSeries("Velocity", velocityColor, xs);
-            var scopeSeries = new ChartSeries("Scope", scopeColor, xs);
-          
-            var xBurnLine = new ChartSeries("", Color.FromArgb(128, Color.Firebrick), new []{ 0, maxValue });
-            var yBurnLine = new ChartSeries("", Color.Transparent, new []{ maxValue, 0});
+            var scope = CreateScopeSeries(burndown, encoding, xs, chartMax, scopeColor);
 
-            var xMeanVelocity = new ChartSeries("", Color.FromArgb(128, velocityColor), new []{ 0, maxValue });
+            var pointsRemaining = new ChartSeries("", Color.Transparent, burndown.Select(item => item.PointsRemaining).Scale(0, chartMax, 0, maxValue));
+            var pointsRemainingSeries = new ChartSeries("Points Remaining", burndownColor, xs);
+
+            var velocityMax = 25;
+            var velocityAxis = new ChartAxis(Axis.Right, new Tuple<int, int>(0, velocityMax), new []{ "0", "5", "10", "15", "20", "Velocity" }, new []{ 0, 5, 10, 15, 20, 25 });
             var meanVelocity = (int)Math.Round(burndown.Average(item => item.Velocity * 1.0));
-            var yMeanVelocity = new ChartSeries("", Color.Transparent, new []{ meanVelocity, meanVelocity}.Scale(0, 25, 0, maxValue));
+
+            var burnLine = CreateBurnLine(encoding);
+            var velocity = CreateVelocitySeries(burndown, encoding, xs, velocityMax, velocityColor);
+            var velocityMean = CreateVelocityMeanSeries(burndown, encoding, meanVelocity, velocityMax, velocityColor);
 
             var chart = new Chart(
                 string.Format("{0} points remaining. Velocity {1}. {2} iterations remaining.", burndown.PointsRemaining, meanVelocity, burndown.PointsRemaining / meanVelocity), 800, 300,
                 new []{ xAxis, yAxis, velocityAxis }, 
                 new [] { 
                     pointsRemainingSeries, pointsRemaining,
-                    velocitySeries, velocity,
-                    scopeSeries, scope, 
-                    xBurnLine, yBurnLine,
-                    xMeanVelocity, yMeanVelocity
-                }, new []{
-                ChartMarker.NewCircle(burndownColor, 0, MarkerPoints.All, 8),
-                ChartMarker.NewCircle(Color.White, 0, MarkerPoints.All, 4)
-            }, ChartMode.XYLine, encoding, new[]{ LineStyle.Default, LineStyle.Default, LineStyle.Default, LineStyle.NewDashed(2, 2, 4), LineStyle.NewDashed(2, 2, 4)});
+                    velocity.X, velocity.Y,
+                    scope.X, scope.Y,
+                    burnLine.X, burnLine.Y,
+                    velocityMean.X, velocityMean.Y
+                }, 
+                new []{
+                    ChartMarker.NewCircle(burndownColor, 0, MarkerPoints.All, 8),
+                    ChartMarker.NewCircle(Color.White, 0, MarkerPoints.All, 4)
+                }, 
+                ChartMode.XYLine, encoding, new[]{ LineStyle.Default, velocity.Style, scope.Style, burnLine.Style, velocityMean.Style});
             return View(new ChartView { Name = configuration.Name, DisplayMarkup = "<img src='" + chart.ToString() + "'/>" });
+        }
+
+        XYSeries CreateVelocitySeries(BurndownData burndown, GoogleExtendedEncoding encoding, IEnumerable<int> xs, int velocityMax, Color velocityColor) {
+            var velocity = new ChartSeries("", Color.Transparent, encoding.Scale(burndown.Select(item => item.Velocity), velocityMax));
+            var velocitySeries = new ChartSeries("Velocity", velocityColor, xs);
+
+            return new XYSeries {
+                X = velocitySeries, 
+                Y = velocity
+            };
+        }
+
+        XYSeries CreateVelocityMeanSeries(BurndownData burndown, GoogleExtendedEncoding encoding, int meanVelocity, int velocityMax, Color velocityColor) {
+            var xMeanVelocity = new ChartSeries("", Color.FromArgb(128, velocityColor), new []{ 0, encoding.MaxValue });
+            var yMeanVelocity = new ChartSeries("", Color.Transparent, encoding.Scale(new []{ meanVelocity, meanVelocity}, velocityMax));
+
+            return new XYSeries {
+                X = xMeanVelocity,
+                Y = yMeanVelocity,
+                Style = LineStyle.NewDashed(2, 2, 4)
+            };
+        }
+
+        XYSeries CreateBurnLine(GoogleExtendedEncoding encoding) {
+            return new XYSeries {
+                X = new ChartSeries("", Color.FromArgb(128, Color.Firebrick), new []{ 0, encoding.MaxValue }),
+                Y = new ChartSeries("", Color.Transparent, new []{ encoding.MaxValue, 0}), 
+                Style = LineStyle.NewDashed(2, 2, 4)
+            };
+        }
+
+        XYSeries CreateScopeSeries(BurndownData burndown, GoogleExtendedEncoding encoding, IEnumerable<int> xs, int chartMax, Color scopeColor) {
+            return new XYSeries {
+                X = new ChartSeries("", Color.Transparent, encoding.Scale(burndown.Select(item => item.TotalPoints), chartMax)), 
+                Y = new ChartSeries("Scope", scopeColor, xs)
+            };
         }
 
         BurndownData GetSouthBurndownData(int project, string label, string historicalDataPath) 

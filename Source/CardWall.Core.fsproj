@@ -49,6 +49,7 @@
     <Compile Include="PivotalStory.fs" />
     <Compile Include="PivotalTracker.fs" />
     <Compile Include="Gravatar.fs" />
+    <Compile Include="GoogleExtendedEncoding.fs" />
     <Compile Include="GoogleChartApi.fs" />
     <Compile Include="BurndownDataPoint.fs" />
   </ItemGroup>

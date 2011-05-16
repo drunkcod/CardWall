@@ -9,28 +9,6 @@ module GoogleChartApi =
     [<Literal>]
     let BaseUrl = "http://chart.apis.google.com/chart"
 
-type IChartDataEncoding =
-    abstract member Encode : data:seq<int> -> string
-
-type GoogleExtendedEncoding() =
-    [<Literal>] 
-    let Alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmonpqrstuvwxyz0123456789.-"
-    
-    member x.MaxValue = 4095
-
-    interface IChartDataEncoding with
-        member x.Encode data =
-            let result = StringBuilder()
-            data |> Seq.iter (fun value ->                
-                let d,r = Math.DivRem(x.Check value, Alphabet.Length)
-                result.Append([|Alphabet.[d]; Alphabet.[r]|]) |> ignore)
-            result.ToString()
-
-    member x.Check value = 
-        if value < 0 || value > x.MaxValue then
-            raise(Exception(value.ToString() + " was out of range!"))
-        else value
-
 type Axis = 
     | X = 0 
     | Y = 1 

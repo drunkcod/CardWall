@@ -52,6 +52,7 @@ let barScal = scale 100
 let calendar = GregorianCalendar()
 
 let throughputColor = Color.Indigo
+let maxThroughput = 40
 let chart = {
     Title = "Story type breakdown"
     Width = 800
@@ -66,9 +67,9 @@ let chart = {
             }
             {
                 Axis = Axis.Right
-                Range = (0, 20)
+                Range = (0, maxThroughput)
                 Labels = ["10"; "Throughput"]
-                Positions = [10; 20]
+                Positions = [10; maxThroughput]
             }
             {
                 Axis = Axis.X
@@ -97,7 +98,7 @@ let chart = {
             {
                 Name = "Throughput"
                 Color = throughputColor
-                Data = velocityData |> scale 20 id
+                Data = velocityData |> scale maxThroughput id
             }
         ]
     Markers = 
