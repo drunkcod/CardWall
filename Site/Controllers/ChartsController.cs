@@ -31,7 +31,7 @@ namespace CardWall.Controllers
 
             var configuration = GetConfiguration(team);
             
-            var burndown = GetSouthBurndownData(configuration.Project, configuration.Label, configuration.HistoricalDataPath);
+            var burndown = GetBurndownData(configuration.Project, configuration.Label, configuration.HistoricalDataPath);
             var startDate = burndown.Min(item => item.Date);
             var endDate = new DateTime(2011, 6, 1);
 
@@ -45,12 +45,11 @@ namespace CardWall.Controllers
             var yAxis = new ChartAxis(Axis.Y, new Tuple<int, int>(0, chartMax), new string[0], new int[0]);
             
             var xAxis = new ChartAxis(Axis.X, new Tuple<int, int>(0, 1), new[]{ startDate.ToShortDateString(), endDate.ToShortDateString() }, new[]{0, 1});
-            var xs = burndown.Select(item => (int)(item.Date - startDate).TotalDays).Scale(0, totalDays, 0, maxValue);
+            var xs = encoding.Scale(burndown.Select(item => (int)(item.Date - startDate).TotalDays), totalDays);
 
             var scope = CreateScopeSeries(burndown, encoding, xs, chartMax, scopeColor);
 
-            var pointsRemaining = new ChartSeries("", Color.Transparent, burndown.Select(item => item.PointsRemaining).Scale(0, chartMax, 0, maxValue));
-            var pointsRemainingSeries = new ChartSeries("Points Remaining", burndownColor, xs);
+            var pointsRemaining = CreatePointsRemainingSeries(burndown, encoding, xs, chartMax, burndownColor); 
 
             var velocityMax = 25;
             var velocityAxis = new ChartAxis(Axis.Right, new Tuple<int, int>(0, velocityMax), new []{ "0", "5", "10", "15", "20", "Velocity" }, new []{ 0, 5, 10, 15, 20, 25 });
@@ -61,10 +60,10 @@ namespace CardWall.Controllers
             var velocityMean = CreateVelocityMeanSeries(burndown, encoding, meanVelocity, velocityMax, velocityColor);
 
             var chart = new Chart(
-                string.Format("{0} points remaining. Velocity {1}. {2} iterations remaining.", burndown.PointsRemaining, meanVelocity, burndown.PointsRemaining / meanVelocity), 800, 300,
+                string.Format("{0} points remaining. Velocity {1}. {2}", burndown.PointsRemaining, meanVelocity, EstimateRemainingDisplay(burndown, meanVelocity)), 800, 300,
                 new []{ xAxis, yAxis, velocityAxis }, 
                 new [] { 
-                    pointsRemainingSeries, pointsRemaining,
+                    pointsRemaining.X, pointsRemaining.Y,
                     velocity.X, velocity.Y,
                     scope.X, scope.Y,
                     burnLine.X, burnLine.Y,
@@ -74,9 +73,14 @@ namespace CardWall.Controllers
                     ChartMarker.NewCircle(burndownColor, 0, MarkerPoints.All, 8),
                     ChartMarker.NewCircle(Color.White, 0, MarkerPoints.All, 4)
                 }, 
-                ChartMode.XYLine, encoding, new[]{ LineStyle.Default, velocity.Style, scope.Style, burnLine.Style, velocityMean.Style});
+                ChartMode.XYLine, encoding, new[]{ pointsRemaining.Style, velocity.Style, scope.Style, burnLine.Style, velocityMean.Style});
             return View(new ChartView { Name = configuration.Name, DisplayMarkup = "<img src='" + chart.ToString() + "'/>" });
         }
+
+		string EstimateRemainingDisplay(BurndownData burndown, int meanVelocity) {
+			var iterationsRemaining = meanVelocity == 0 ? "inf" :  (burndown.PointsRemaining / meanVelocity).ToString();
+			return string.Format("{0} iterations remaining.", iterationsRemaining);
+		}
 
         XYSeries CreateVelocitySeries(BurndownData burndown, GoogleExtendedEncoding encoding, IEnumerable<int> xs, int velocityMax, Color velocityColor) {
             var velocity = new ChartSeries("", Color.Transparent, encoding.Scale(burndown.Select(item => item.Velocity), velocityMax));
@@ -109,12 +113,19 @@ namespace CardWall.Controllers
 
         XYSeries CreateScopeSeries(BurndownData burndown, GoogleExtendedEncoding encoding, IEnumerable<int> xs, int chartMax, Color scopeColor) {
             return new XYSeries {
-                X = new ChartSeries("", Color.Transparent, encoding.Scale(burndown.Select(item => item.TotalPoints), chartMax)), 
-                Y = new ChartSeries("Scope", scopeColor, xs)
+                X = new ChartSeries("Scope", scopeColor, xs),
+                Y = new ChartSeries("", Color.Transparent, encoding.Scale(burndown.Select(item => item.TotalPoints), chartMax)) 
             };
         }
 
-        BurndownData GetSouthBurndownData(int project, string label, string historicalDataPath) 
+        XYSeries CreatePointsRemainingSeries(BurndownData burndown, GoogleExtendedEncoding encoding, IEnumerable<int> xs, int chartMax, Color burndownColor) {
+            return new XYSeries {
+                X = new ChartSeries("Points Remaining", burndownColor, xs),
+                Y = new ChartSeries("", Color.Transparent, encoding.Scale(burndown.Select(item => item.PointsRemaining), chartMax))
+            };
+        }
+
+        BurndownData GetBurndownData(int project, string label, string historicalDataPath) 
         {
             var tracker = new PivotalTracker(Environment.GetEnvironmentVariable("TrackerToken", EnvironmentVariableTarget.Machine));
             var stories = 
@@ -144,7 +155,7 @@ namespace CardWall.Controllers
                     return new BurndownChartConfiguration {
                         Name = "Team Incredibles",
                         Project = 173053,
-                        Label = team,
+                        Label = "team incredible",
                         HistoricalDataPath = "TeamIncrediblesBurndown.txt"
                     };
                 default:
