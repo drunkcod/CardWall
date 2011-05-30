@@ -104,8 +104,10 @@ let stories =
 let data = new TypedDataReader(stories)
 
 data.AddMember("Project", fun (x,_) -> x)
+data.AddMember("StoryId", fun (_, x) -> x.Id)
 data.AddMember("StoryType", fun (_,x) -> x.Type)
 data.AddMember("StoryState", fun (_,x) -> x.CurrentState)
+data.AddMember("Name", fun (_, x) -> x.Name)
 data.AddMember("RequestedBy", fun (_,x) -> x.RequestedBy)
 data.AddMember("OwnedBy", fun (_,x) -> x.OwnedBy)
 data.AddMember("CreatedAt", fun (_,x) -> x.CreatedAt)
