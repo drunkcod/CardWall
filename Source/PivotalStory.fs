@@ -11,11 +11,12 @@ type PivotalStory() =
     let mutable createdAt = DateTime.MinValue
     let mutable acceptedAt = DateTime.MinValue
     let mutable storyType = PivotalStoryType.Unknown
-    let mutable  estimate = Nullable<int>()
-    let mutable  state = PivotalStoryState.Unknown
-    let mutable  url = String.Empty
-    let mutable  name = String.Empty
-    let mutable  ownedBy = String.Empty
+    let mutable estimate = Nullable<int>()
+    let mutable state = PivotalStoryState.Unknown
+    let mutable url = String.Empty
+    let mutable name = String.Empty
+    let mutable requestedBy = String.Empty
+    let mutable ownedBy = String.Empty
     let mutable labels = [||] : string[]
     let tasks = List<PivotalTask>()
 
@@ -28,6 +29,7 @@ type PivotalStory() =
     member this.CurrentState = state
     member this.Url = url
     member this.Name = name
+    member this.RequestedBy = requestedBy
     member this.OwnedBy = ownedBy
     member this.Labels = labels
     member this.Tasks = tasks
@@ -47,6 +49,7 @@ type PivotalStory() =
                 | "current_state" -> state <- PivotalParse.storyState(reader.ReadElementContentAsString())
                 | "url" -> url <- reader.ReadElementContentAsString()
                 | "name" -> name <- reader.ReadElementContentAsString()
+                | "requested_by" -> requestedBy <- reader.ReadElementContentAsString()
                 | "owned_by" -> ownedBy <- reader.ReadElementContentAsString()
                 | "labels" -> labels <- reader.ReadElementContentAsString().Split([|','|])
                 | "tasks" ->
