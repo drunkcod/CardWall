@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Drawing;
 using System.Linq;
 using System.Web.Mvc;
@@ -7,14 +8,6 @@ using CardWall.Models;
 
 namespace CardWall.Controllers
 {
-    class BurndownChartConfiguration 
-    {
-        public string Name;
-        public string Label;
-        public int Project;
-        public string HistoricalDataPath;
-    }
-
     class XYSeries 
     {
         public ChartSeries X;
@@ -33,7 +26,7 @@ namespace CardWall.Controllers
             
             var burndown = GetBurndownData(configuration.Project, configuration.Label, configuration.HistoricalDataPath);
             var startDate = burndown.Min(item => item.Date);
-            var endDate = new DateTime(2011, 6, 1);
+            var endDate = configuration.EndDate ?? burndown.Max(item => item.Date);
 
             var totalDays = (int)Math.Ceiling((endDate - startDate).TotalDays);
 
@@ -53,14 +46,14 @@ namespace CardWall.Controllers
 
             var velocityMax = 25;
             var velocityAxis = new ChartAxis(Axis.Right, new Tuple<int, int>(0, velocityMax), new []{ "0", "5", "10", "15", "20", "Velocity" }, new []{ 0, 5, 10, 15, 20, 25 });
-            var meanVelocity = (int)Math.Round(burndown.Average(item => item.Velocity * 1.0));
+            var meanVelocity = (int)Math.Round(burndown.Average(item => (float)item.Velocity));
 
             var burnLine = CreateBurnLine(encoding);
             var velocity = CreateVelocitySeries(burndown, encoding, xs, velocityMax, velocityColor);
             var velocityMean = CreateVelocityMeanSeries(burndown, encoding, meanVelocity, velocityMax, velocityColor);
 
             var chart = new Chart(
-                string.Format("{0} points remaining. Velocity {1}. {2}", burndown.PointsRemaining, meanVelocity, EstimateRemainingDisplay(burndown, meanVelocity)), 800, 300,
+                string.Format("{0}: {1} points remaining. Velocity {2}. {3}", configuration.Title, burndown.PointsRemaining, meanVelocity, EstimateRemainingDisplay(burndown, meanVelocity)), 800, 300,
                 new []{ xAxis, yAxis, velocityAxis }, 
                 new [] { 
                     pointsRemaining.X, pointsRemaining.Y,
@@ -74,7 +67,7 @@ namespace CardWall.Controllers
                     ChartMarker.NewCircle(Color.White, 0, MarkerPoints.All, 4)
                 }, 
                 ChartMode.XYLine, encoding, new[]{ pointsRemaining.Style, velocity.Style, scope.Style, burnLine.Style, velocityMean.Style});
-            return View(new ChartView { Name = configuration.Name, DisplayMarkup = "<img src='" + chart.ToString() + "'/>" });
+            return View(new ChartView { Name = configuration.Title, DisplayMarkup = "<img src='" + chart.ToString() + "'/>" });
         }
 
 		string EstimateRemainingDisplay(BurndownData burndown, int meanVelocity) {
@@ -143,29 +136,11 @@ namespace CardWall.Controllers
         }
 
         BurndownChartConfiguration GetConfiguration(string team) {
-            switch(team) {
-                case "north":                    
-                    return new BurndownChartConfiguration {
-                        Name = "Team North",
-                        Project = 173053,
-                        Label = "team north",
-                        HistoricalDataPath = "TeamNorthBurndown.txt"
-                    };
-                case "incredible":
-                    return new BurndownChartConfiguration {
-                        Name = "Team Incredibles",
-                        Project = 173053,
-                        Label = "team incredible",
-                        HistoricalDataPath = "TeamIncrediblesBurndown.txt"
-                    };
-                default:
-                    return new BurndownChartConfiguration {
-                        Name = "Team South",
-                        Project = 173053,
-                        Label = "team south",
-                        HistoricalDataPath = "TeamSouthBurndown.txt"
-                    };
-            }
+            var burndownCharts = (BurndownChartConfigurationSection)ConfigurationManager.GetSection("BurndownCharts");
+            var found = burndownCharts.Charts.FirstOrDefault(x => x.Key == team);
+            if(found != null)
+                return found;
+            return GetConfiguration(burndownCharts.DefaultChart);
         }
     }
 }

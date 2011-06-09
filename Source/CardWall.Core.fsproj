@@ -36,11 +36,13 @@
     <Reference Include="FSharp.Core" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Numerics" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ObjectDataReader.fs" />
     <Compile Include="Xml.fs" />
     <Compile Include="XPath.fs" />
     <Compile Include="PivotalStoryType.fs" />
