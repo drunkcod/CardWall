@@ -1,10 +1,18 @@
 ﻿namespace CardWall
 
 open System
+open System.Runtime.CompilerServices
 open System.Text
 
 type IChartDataEncoding =
+    abstract member MaxValue : int
     abstract member Encode : data:seq<int> -> string
+
+[<Extension>]
+module ChartDataEncoding =
+    [<CompiledName("Scale"); Extension>]
+    let scale (encoding:IChartDataEncoding) data max =
+        data |> Seq.map (fun x -> encoding.MaxValue * x / max)
 
 type GoogleExtendedEncoding() =
     [<Literal>] 
@@ -12,10 +20,8 @@ type GoogleExtendedEncoding() =
     
     member x.MaxValue = 4095
 
-    member this.Scale(data, max) =  
-        data |> Seq.map (fun x -> this.MaxValue * x / max)
-
     interface IChartDataEncoding with
+        member this.MaxValue = this.MaxValue
         member this.Encode data =
             let result = StringBuilder()
             data |> Seq.iter (fun value ->                

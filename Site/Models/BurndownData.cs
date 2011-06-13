@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace CardWall.Models
 {
-    public class BurndowChartData 
+    public class BurndownChartData 
     {
         public DateTime Date;
         public int PointsRemaining;
@@ -13,7 +13,7 @@ namespace CardWall.Models
         public int TotalPoints;
     }
 
-    public class BurndownData : IEnumerable<BurndowChartData>
+    public class BurndownData : IEnumerable<BurndownChartData>
     {
         readonly List<BurndownDataPoint> dataPoints = new List<BurndownDataPoint>();
 
@@ -38,7 +38,7 @@ namespace CardWall.Models
             dataPoints.Add(new BurndownDataPoint(date, pointsRemaining, totalPointsBurned));
         }
 
-        IEnumerator<BurndowChartData> IEnumerable<BurndowChartData>.GetEnumerator() {
+        IEnumerator<BurndownChartData> IEnumerable<BurndownChartData>.GetEnumerator() {
             return GetChartData().GetEnumerator();
         }
 
@@ -46,11 +46,11 @@ namespace CardWall.Models
             return GetChartData().GetEnumerator();
         }
 
-        IEnumerable<BurndowChartData> GetChartData() {
+        IEnumerable<BurndownChartData> GetChartData() {
             for(var i = 1; i < dataPoints.Count; ++i) {
                 var x = dataPoints[i - 1];
                 var y = dataPoints[i];
-                yield return new BurndowChartData { 
+                yield return new BurndownChartData { 
                     Date = y.Date,
                     PointsRemaining = y.PointsRemaining,
                     Velocity = y.TotalPointsBurned - x.TotalPointsBurned,
