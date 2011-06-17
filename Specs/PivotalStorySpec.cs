@@ -1,13 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Xml.Serialization;
-using Cone;
 using System.Xml;
-using System.Resources;
+using System.Xml.Serialization;
 using System.Xml.XPath;
-using System.IO;
+using Cone;
 
 namespace CardWall
 {

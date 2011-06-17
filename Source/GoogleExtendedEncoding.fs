@@ -31,5 +31,5 @@ type GoogleExtendedEncoding() =
 
     member private this.Check value = 
         if value < 0 || value > this.MaxValue then
-            raise(Exception(value.ToString() + " was out of range!"))
+            raise(ArgumentOutOfRangeException("value", value.ToString() + " was out of range!"))
         else value

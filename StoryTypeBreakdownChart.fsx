@@ -47,7 +47,7 @@ let encoding = GoogleExtendedEncoding()
 
 let scale max f = Seq.map (f >> (fun x -> x * encoding.MaxValue / max))
 
-let barScal = scale 100
+let barScal = scale 105
 
 let calendar = GregorianCalendar()
 

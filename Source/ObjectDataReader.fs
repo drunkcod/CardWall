@@ -4,14 +4,14 @@ open System.Collections.Generic
 open System.Data
 open System.Linq
 
-type ObjectDataReader<'a> =
-  val items : IEnumerator<'a>
+type ObjectDataReader<'T> =
+  val items : IEnumerator<'T>
   val fields : Dictionary<String, int>
-  val keys : List<'a -> obj>
+  val keys : List<'T -> obj>
   val types : List<Type>
 
   new(collection) = {
-    items = (collection : IEnumerable<'a>).GetEnumerator()
+    items = (collection : IEnumerable<'T>).GetEnumerator()
     fields = Dictionary()
     keys = List()
     types = List<Type>() }
@@ -23,7 +23,7 @@ type ObjectDataReader<'a> =
 
   member this.Read() = this.items.MoveNext()
 
-  member this.AddMember(name, f:'a -> DateTime) =
+  member this.AddMember(name, f:'T -> DateTime) =
     this.fields.Add(name, this.keys.Count)
     this.keys.Add(fun x -> 
         let value = f x
@@ -32,10 +32,10 @@ type ObjectDataReader<'a> =
         else box value)
     this.types.Add(typeof<DateTime>)
 
-  member this.AddMember(name, f:'a -> 'b) =
+  member this.AddMember(name, f:'T -> 'TResult) =
     this.fields.Add(name, this.keys.Count)
     this.keys.Add(f >> box)
-    this.types.Add(typeof<'b>)
+    this.types.Add(typeof<'TResult>)
 
   member private this.NotSupported() = raise(NotSupportedException())
 
