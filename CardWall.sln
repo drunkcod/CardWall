@@ -15,7 +15,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		EffortAllocation.fsx = EffortAllocation.fsx
 		EffortAllocation.sql = EffortAllocation.sql
 		StoriesPerType.fsx = StoriesPerType.fsx
-		StoryTypeBreakdownChart.fsx = StoryTypeBreakdownChart.fsx
 	EndProjectSection
 EndProject
 Global

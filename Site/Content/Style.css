@@ -1,7 +1,11 @@
 ﻿body {
-    background-color: #eee;
-    font-family: Verdana, Sans-Serif;
-	margin: 0px; padding: 0px;
+  background-color: #eee;
+  font-family: Verdana, Sans-Serif;
+  margin: 0px; padding: 0px;
+}
+
+h1 { 
+  margin: 0
 }
 
 #content {
@@ -16,15 +20,17 @@
     -moz-border-radius: 15px;
     box-shadow: 10px 10px 10px rgba(50%, 50%, 50%, 0.3);
     -moz-box-shadow: 10px 10px 10px rgba(50%, 50%, 50%, 0.3);
-    margin: 0;
     padding: 10px;
-    padding-bottom: 60px;
     width: 240px;
     position: relative;
     top: 0px;
     margin: 10px;
     z-index: 0;
-	cursor: pointer;
+    cursor: pointer;
+}
+
+#content .with-footer {
+  padding-bottom: 25px;
 }
 
 #content .card h1 {
@@ -42,17 +48,20 @@
 #content .size4 {
     -o-transform: scale(1);
 }
-   
+
+#content .card-title {
+  margin-top: 20px;
+}
+
 #content .card-footer {
     font-size: smaller;
     color: rgba(0, 0, 0, 0.7);
-    position: absolute;
-    bottom: 1em;
+  position: absolute;
+  bottom: 1em;
 }
 #content .card-avatar {
-    position: absolute;
-    bottom: 10px;
-    right: 10px;
+  position: relative;
+  left: 195px;
 }
 
 #content .card-summary {
@@ -73,9 +82,6 @@
 
 #content .card-tasks {
     font-size: smaller;
-    position: relative;
-    top: 110px;
-    left: 40px;
     z-index: 1;
 }
 
@@ -143,7 +149,7 @@
     background-color: #40A0FF;
 }
  
-#content .card-title { 
+#content .card-title > a { 
     font-size: 11pt;
     color: rgba(0, 0, 0, 0.95);
 }

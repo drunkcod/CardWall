@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using System;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 
@@ -26,6 +26,9 @@ namespace CardWall.Models
         public int? Size;
         public DateTime Started;
 		public int Id;
+
+        public bool ShowSummary { get { return string.IsNullOrEmpty(Summary) == false; } }
+        public bool HasFooter { get { return string.IsNullOrEmpty(Owner) == false || Labels.Count() > 0; } }
 
         public void AddBadge(CardBadge item) { badges.Add(item); }
         public void AddTask(CardTask item){ tasks.Add(item); }

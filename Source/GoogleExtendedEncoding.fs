@@ -16,7 +16,7 @@ module ChartDataEncoding =
 
 type GoogleExtendedEncoding() =
     [<Literal>] 
-    let Alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmonpqrstuvwxyz0123456789.-"
+    let Alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789.-"
     
     member x.MaxValue = 4095
 

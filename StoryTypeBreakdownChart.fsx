@@ -19,12 +19,21 @@ type BreakdownChartItem = {
     ClosedFeatures : int
 } with
     member this.ClosedTotal = this.ClosedBugs + this.ClosedChores + this.ClosedFeatures
+    member this.OpenTotal = this.OpenBugs + this.OpenChores + this.OpenFeatures
 
 let inputPath = fsi.CommandLineArgs.[1]
 
-let data = 
-    File.ReadAllLines(inputPath)
-    |> Seq.skip 1
+let readRows maxCount = 
+  let lines = File.ReadAllLines(inputPath)
+  if lines.Length < maxCount then
+    lines
+  else 
+    let lines' = Array.zeroCreate maxCount
+    Array.blit lines (lines.Length - maxCount - 1) lines' 0 maxCount
+    lines'
+
+let rowData = 
+    readRows 22
     |> Seq.map (fun line -> 
         let parts = line.Split([|';'|])
         {
@@ -39,15 +48,18 @@ let data =
     |> Seq.cache
 
 let velocityData = 
-    data |> Seq.pairwise
+    rowData |> Seq.pairwise
     |> Seq.map (fun (x, y) -> y.ClosedTotal - x.ClosedTotal)
-    |> Seq.append (Seq.singleton 0)
+
+let data = rowData |> Seq.skip 1
 
 let encoding = GoogleExtendedEncoding()
 
 let scale max f = Seq.map (f >> (fun x -> x * encoding.MaxValue / max))
 
-let barScal = scale 105
+let top = max 100 (data |> Seq.map (fun x -> x.OpenTotal) |> Seq.max)
+
+let barScal = scale top
 
 let calendar = GregorianCalendar()
 
@@ -61,9 +73,9 @@ let chart = {
         [
             {
                 Axis = Axis.Y
-                Range = (0, 100)
-                Labels = ["50"; "90"; "Stories"]
-                Positions = [50; 90; 100]
+                Range = (0, top + 10)
+                Labels = ["50"; "90"; string top; "Stories"]
+                Positions = [50; 90; top; top + 10]
             }
             {
                 Axis = Axis.Right
@@ -103,7 +115,7 @@ let chart = {
         ]
     Markers = 
         [
-            LineMarker(throughputColor, 3, StartAt(1), LineWidth(3))
+            LineMarker(throughputColor, 3, StartAt(0), LineWidth(3))
         ]
     Mode = ChartMode.StackedBars
     DataEncoding = encoding

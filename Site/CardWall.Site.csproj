@@ -115,7 +115,9 @@
     <Content Include="Views\Charts\Index.aspx" />
     <Content Include="Views\Projects\CurrentIteration.aspx" />
     <Content Include="Views\Shared\Card.ascx" />
-    <Content Include="Web.config" />
+    <Content Include="Web.config">
+      <SubType>Designer</SubType>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

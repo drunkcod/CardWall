@@ -15,6 +15,9 @@ open CardWall
 
 type Configuration = {
     Date : DateTime option
+    Path : String option
+    Project : int
+    ConnectionString : string
 }
 
 module Config = 
@@ -29,26 +32,27 @@ module Config =
           | Match(m) ->
             match m.Groups.[key].Value with
             | "date" -> { config with Date = Some(DateTime.Parse(m.Groups.[value].Value)) }
+            | "file" -> { config with Path = Some(m.Groups.[value].Value) }
             | _ as x -> raise(new ArgumentException(x))
           | NonMatch -> raise(ArgumentException(arg))
 
     let load() = 
         fsi.CommandLineArgs
         |> Seq.skip 1
-        |> Seq.fold parseArg { Date = None }
+        |> Seq.fold parseArg { Date = None; Path = None; Project = 173053; ConnectionString = "Server=.;Database=Tracker;Integrated Security=SSPI" }
 
 module Member =
+       
     let getValue (mi:MemberInfo) x =
         match mi.MemberType with
         | MemberTypes.Field -> (mi :?> FieldInfo).GetValue(x)
         | MemberTypes.Property -> (mi :?> PropertyInfo).GetValue(x, null)
         | _ -> raise(InvalidOperationException())
 
-let getStories date project = 
-  match date with
-  | Some(x:DateTime) ->
-    let snapshotPath date project = String.Format(@"R:\PivotalSnapshots\{0}\{1}.xml", x.ToShortDateString(), project)
-    let xml = XPathDocument(snapshotPath date project)
+let getStories path project =
+  match path with
+  | Some(path:string) ->
+    let xml = XPathDocument(path)
     xml.CreateNavigator()
     |> XPath.map "//story" (fun x -> x.ReadSubtree() |> Xml.read (PivotalStory()))
   | None ->
@@ -58,19 +62,34 @@ let getStories date project =
 
 let config = Config.load()
 
+let snapshotPath (date:DateTime) project = String.Format(@"R:\PivotalSnapshots\{0}\{1}.xml", date.ToShortDateString(), project)
+
+let getPath (x:Configuration) =
+    if x.Path.IsSome then
+        x.Path
+    else if x.Date.IsSome then
+        Some(snapshotPath (Option.get x.Date) x.Project)
+    else None 
+
 let importStories() = 
     let stories =
-      let getStories = getStories (config.Date)
+      let getStories = getStories (getPath config)
       [("CSA3", 173053)]
       |> Seq.collect (fun (x,p) -> getStories p)
 
     let data = new ObjectDataReader<_>(stories)
 
-    let getSnapshotDate = 
+    let getSnapshotDate =     
         let now = DateTime.Now
-        function None -> now | Some(x) -> x
+        fun (x:Configuration) -> 
+            if x.Date.IsSome then
+                Option.get x.Date
+            else if x.Path.IsSome then
+                let fi = FileInfo((Option.get x.Path))
+                fi.CreationTime
+            else now
 
-    data.AddMember("SnapshotDate", fun (x:PivotalStory) -> getSnapshotDate config.Date)
+    data.AddMember("SnapshotDate", fun x -> getSnapshotDate config)
     data.AddMember("Project", fun (x:PivotalStory) -> x.ProjectId)
     data.AddMember("Id", fun (x:PivotalStory) -> x.Id)
     data.AddMember("Type", fun (x:PivotalStory) -> x.Type)
@@ -82,7 +101,7 @@ let importStories() =
     data.AddMember("CreatedAt", fun (x:PivotalStory) -> x.CreatedAt)
     data.AddMember("AcceptedAt", fun (x:PivotalStory) -> x.AcceptedAt)
 
-    let db = new SqlConnection("Server=.;Database=Stuff;Integrated Security=SSPI")
+    let db = new SqlConnection(config.ConnectionString)
     let bulkCopyStories = new SqlBulkCopy(db, DestinationTableName = "#Stories")
 
     for i = 0 to data.FieldCount - 1 do

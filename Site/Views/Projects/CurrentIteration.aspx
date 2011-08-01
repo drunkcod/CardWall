@@ -45,7 +45,14 @@
 
   <script type="text/javascript">
 	var breakClass = function (index){
-		switch (index % 4) {			case 0:			case 2:				return 'break';			case 3:	return 'page-break';			default: return '';		}	};
+		switch (index % 4) {
+			case 0:
+			case 2:
+				return 'break';
+			case 3:	return 'page-break';
+			default: return '';
+		}
+	};
 
 	$('#content .card').click(function(event){
 		$(this).toggleClass('selected');

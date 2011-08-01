@@ -81,7 +81,7 @@ namespace CardWall.Models
 
         string GetOwner(PivotalStory story) {
             if(string.IsNullOrEmpty(story.OwnedBy))
-                return "<none>";
+                return "";
             return story.OwnedBy;
         }
     }
