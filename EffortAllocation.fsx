@@ -12,6 +12,9 @@ open System.Text.RegularExpressions
 open System.Xml.XPath
 open System.Reflection
 open CardWall
+open Microsoft.FSharp.Quotations
+open Microsoft.FSharp.Quotations.Patterns
+open Microsoft.FSharp.Quotations.DerivedPatterns
 
 type Configuration = {
     Date : DateTime option
