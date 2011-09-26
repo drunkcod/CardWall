@@ -73,11 +73,19 @@ namespace CardWall.Models
             return projects[story.ProjectId].Name;
         }
 
-        string GetAvatarUrl(PivotalStory story) {
-            if(string.IsNullOrEmpty(story.OwnedBy))
-                return "";
-            return Gravatar.FromEmail(members[story.OwnedBy].EmailAddress);
-        }
+        string GetAvatarUrl(PivotalStory story)
+		{
+			if (string.IsNullOrEmpty(story.OwnedBy))
+				return "";
+			try
+			{
+				return Gravatar.FromEmail(members[story.OwnedBy].EmailAddress);
+			}
+			catch (Exception)
+			{
+				return "http://www.southparkgames.org/games/images/hulk_hogan.gif";
+			}
+		}
 
         string GetOwner(PivotalStory story) {
             if(string.IsNullOrEmpty(story.OwnedBy))
