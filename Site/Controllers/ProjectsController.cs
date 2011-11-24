@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Mvc;
@@ -11,7 +12,7 @@ namespace CardWall.Controllers
     {
         PivotalTracker tracker = new PivotalTracker(Environment.GetEnvironmentVariable("TrackerToken", EnvironmentVariableTarget.Machine));
 
-        public ActionResult CurrentIteration(int? id, string projects,string q) {
+        public ActionResult CurrentIteration(int? id, string projects,string q, string theme) {
             var iteration = new IterationView {
                 { "unstarted", new LaneView { Name = "Unstarted" } },
                 { "started", new LaneView { Name = "Started" } },
@@ -27,10 +28,21 @@ namespace CardWall.Controllers
                 foreach(var item in projects.Split(' '))
                     ids.Add(int.Parse(item));
             AppendCurrentIteration(iteration, ids, CreateCardFilter(q));
+        	iteration.Theme = GetTheme(theme);
             return View(iteration);
         }
 
-        Func<CardView, bool> CreateCardFilter(string q) {
+    	private Theme GetTheme(string themeName)
+    	{
+			var themeConfiguration = (ThemeConfiguration)ConfigurationManager.GetSection("Themes");
+    		var themes = themeConfiguration.Themes;
+    		themeName = themeName ?? "Default";
+			if (themes.Any(x => x.Key.ToUpper() == themeName.ToUpper()))
+				return themes.First(x => x.Key.ToUpper() == themeName.ToUpper());
+			return themes.First();
+    	}
+
+    	Func<CardView, bool> CreateCardFilter(string q) {
             if(string.IsNullOrEmpty(q))
                 return _ => true;
             return x => x.Badges.Any(badge => badge.Name.Equals(q, StringComparison.InvariantCultureIgnoreCase));

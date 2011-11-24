@@ -84,9 +84,11 @@
     <Compile Include="Models\DefaultBadgeBuilder.cs" />
     <Compile Include="Models\IBuilder.cs" />
     <Compile Include="Models\IterationView.cs" />
+    <Compile Include="Models\Theme.cs" />
     <Compile Include="Models\QuickLink.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="QuickLinkConfiguration.cs" />
+    <Compile Include="ThemeConfiguration.cs" />
     <Compile Include="WebConfirugraionSectionHandler.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -104,6 +106,9 @@
     <Content Include="Content\Print\bug.png" />
     <Content Include="Content\Print\chore.png" />
     <Content Include="Content\Print\feature.png" />
+    <Content Include="Content\Print\Themes\North\bug.png" />
+    <Content Include="Content\Print\Themes\North\chore.png" />
+    <Content Include="Content\Print\Themes\North\feature.png" />
     <Content Include="Content\Scripts\jquery-1.5.2.min.js" />
     <Content Include="Content\Scripts\jquery.tmpl.min.js" />
     <Content Include="Content\Style.css" />
