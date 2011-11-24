@@ -37,6 +37,7 @@
 	<div class="card ${breakClass(idx)}">
 		<img src="<%=Url.Content(Model.Theme.PrintImageUrl)%>/${type}.png"/>
 		<h1>${title}</h1>
+		<img class="qr" src="https://chart.googleapis.com/chart?chs=100x100&cht=qr&choe=UTF-8&chld=L|0&chl=${url}"/>
 		<div class="size">${size}</div>
 		<div class="id">${id}</div>
 	</div>
@@ -66,7 +67,8 @@
 				id:elm.attr('id'),
 				title:$('h1 a', elm).text(),
 				size:elm.attr('data-size'),
-				type:elm.attr('data-type')
+				type:elm.attr('data-type'),
+				url:$('h1 a', elm).attr('href')
 			};
 		});
 		$('#actions').hide();
