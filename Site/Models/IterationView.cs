@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using CardWall.Controllers;
 
 namespace CardWall.Models
 {
@@ -18,7 +19,9 @@ namespace CardWall.Models
 
         public IEnumerable<LaneView> Lanes { get { return lanes; } }
 
-        public void Add(string key, LaneView value) { 
+    	public Theme Theme { get; set; }
+
+    	public void Add(string key, LaneView value) { 
             lanes.Add(value); 
             laneLookup.Add(key, value);
         }
@@ -38,5 +41,7 @@ namespace CardWall.Models
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() {
             return lanes.GetEnumerator();
         }
+
+
     }
 }

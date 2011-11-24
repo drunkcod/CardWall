@@ -35,7 +35,7 @@
   <script id="print-view-template" type="text/x-jquery-tmpl">
 	{{each(idx, card) cards}}
 	<div class="card ${breakClass(idx)}">
-		<img src="<%=Url.Content("~/Content/Print")%>/${type}.png"/>
+		<img src="<%=Url.Content(Model.Theme.PrintImageUrl)%>/${type}.png"/>
 		<h1>${title}</h1>
 		<img class="qr" src="https://chart.googleapis.com/chart?chs=100x100&cht=qr&choe=UTF-8&chld=L|0&chl=${url}"/>
 		<div class="size">${size}</div>
